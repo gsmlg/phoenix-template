@@ -23,4 +23,9 @@ defmodule GsmlgWeb.Router do
   # scope "/api", GsmlgWeb do
   #   pipe_through :api
   # end
+
+  scope "/", GsmlgWeb do
+    pipe_through :browser # Use the default browser stack
+    get "/*not_found", PageController, :not_found
+  end
 end
