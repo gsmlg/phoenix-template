@@ -13,7 +13,7 @@ const defaults = require('lodash/defaultsDeep');
 const webpack = require('webpack');
 const config = require('../config');
 const pkg = require(join(config.root, 'package.json'));
-const dllPlugin = require('../config').dllPlugin;
+const { dllPlugin } = require('../config');
 
 if (!pkg.dllPlugin) { process.exit(0); }
 

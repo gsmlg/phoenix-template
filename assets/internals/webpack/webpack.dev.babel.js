@@ -11,7 +11,7 @@ const AddAssetHtmlPlugin = require('add-asset-html-webpack-plugin');
 const CircularDependencyPlugin = require('circular-dependency-plugin');
 const config = require('../config');
 const pkg = require(path.resolve(config.root, 'package.json'));
-const dllPlugin = pkg.dllPlugin;
+const { dllPlugin } = pkg;
 const logger = console;
 
 const plugins = [
@@ -28,12 +28,10 @@ const plugins = [
 
 if (dllPlugin) {
   glob.sync(`${dllPlugin.path}/*.dll.js`).forEach((dllPath) => {
-    plugins.push(
-      new AddAssetHtmlPlugin({
-        filepath: dllPath,
-        includeSourcemap: false,
-      })
-    );
+    plugins.push(new AddAssetHtmlPlugin({
+      filepath: dllPath,
+      includeSourcemap: false,
+    }));
   });
 }
 
