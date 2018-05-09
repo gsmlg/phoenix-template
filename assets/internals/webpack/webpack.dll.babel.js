@@ -11,17 +11,18 @@
 const { join } = require('path');
 const defaults = require('lodash/defaultsDeep');
 const webpack = require('webpack');
-const pkg = require(join(process.cwd(), 'package.json'));
+const config = require('../config');
+const pkg = require(join(config.root, 'package.json'));
 const dllPlugin = require('../config').dllPlugin;
 
 if (!pkg.dllPlugin) { process.exit(0); }
 
 const dllConfig = defaults(pkg.dllPlugin, dllPlugin.defaults);
-const outputPath = join(process.cwd(), dllConfig.path);
+const outputPath = join(config.root, dllConfig.path);
 
 module.exports = require('./webpack.base.babel')({
   mode: 'development',
-  context: process.cwd(),
+  context: config.root,
   entry: dllConfig.dlls ? dllConfig.dlls : dllPlugin.entry(pkg),
   optimization: {
     minimize: false,

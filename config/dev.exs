@@ -7,11 +7,11 @@ use Mix.Config
 # watchers to your application. For example, we use it
 # with brunch.io to recompile .js and .css sources.
 config :gsmlg, GsmlgWeb.Endpoint,
-  http: [port: 4000],
+  http: [port: 8000],
   debug_errors: true,
   code_reloader: true,
   check_origin: false,
-  watchers: [node: ["./yarn", "run", "start:watch",
+  watchers: [node: ["yarn", "run", "start:watch",
                     cd: Path.expand("../assets", __DIR__)]]
 
 # ## SSL Support
@@ -24,7 +24,7 @@ config :gsmlg, GsmlgWeb.Endpoint,
 #
 # The `http:` config above can be replaced with:
 #
-#     https: [port: 4000, keyfile: "priv/server.key", certfile: "priv/server.pem"],
+#     https: [port: 8000, keyfile: "priv/server.key", certfile: "priv/server.pem"],
 #
 # If desired, both `http:` and `https:` keys can be
 # configured to run both http and https servers on
