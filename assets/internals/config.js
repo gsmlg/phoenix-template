@@ -2,12 +2,12 @@ const resolve = require('path').resolve;
 const pullAll = require('lodash/pullAll');
 const uniq = require('lodash/uniq');
 
-const ReactBoilerplate = {
+const PhoenixTemplate = {
   root: resolve(__dirname, '..'),
   build_to: resolve(__dirname, '..', '..', 'priv', 'static'),
 
-  // This refers to the react-boilerplate version this project is based on.
-  version: '3.5.0',
+  // This refers to the gsmlg phoenix template version this project is based on.
+  version: '1.0.0',
 
   /**
    * The DLL Plugin provides a dramatic speed increase to webpack build and hot module reloading
@@ -40,13 +40,13 @@ const ReactBoilerplate = {
       include: ['core-js', 'eventsource-polyfill', 'babel-polyfill', 'lodash'],
 
       // The path where the DLL manifest and bundle will get built
-      path: resolve('../node_modules/react-boilerplate-dlls'),
+      path: resolve('../node_modules/gsmlg-dlls'),
     },
 
     entry(pkg) {
       const dependencyNames = Object.keys(pkg.dependencies);
-      const exclude = pkg.dllPlugin.exclude || ReactBoilerplate.dllPlugin.defaults.exclude;
-      const include = pkg.dllPlugin.include || ReactBoilerplate.dllPlugin.defaults.include;
+      const exclude = pkg.dllPlugin.exclude || PhoenixTemplate.dllPlugin.defaults.exclude;
+      const include = pkg.dllPlugin.include || PhoenixTemplate.dllPlugin.defaults.include;
       const includeDependencies = uniq(dependencyNames.concat(include));
 
       return {
@@ -56,4 +56,4 @@ const ReactBoilerplate = {
   },
 };
 
-module.exports = ReactBoilerplate;
+module.exports = PhoenixTemplate;
