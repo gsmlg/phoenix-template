@@ -22,7 +22,7 @@ import { Header, Footer, Sidebar } from 'components';
 import appStyle from 'jss/dashboard/appStyle';
 
 import image from 'images/sidebar-2.jpg';
-import logo from 'images/reactlogo.png';
+import logo from 'images/logo.png';
 
 import dashboardRoutes from './routes';
 
