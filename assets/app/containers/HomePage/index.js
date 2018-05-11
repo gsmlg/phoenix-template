@@ -42,7 +42,7 @@ class HomePage extends React.PureComponent { // eslint-disable-line react/prefer
   componentDidMount() {
     if (navigator.platform.indexOf('Win') > -1) {
       // eslint-disable-next-line
-      const ps = new PerfectScrollbar(this.refs.mainPanel);
+      const ps = new PerfectScrollbar(this.mainPanel);
     }
   }
   componentDidUpdate() {
