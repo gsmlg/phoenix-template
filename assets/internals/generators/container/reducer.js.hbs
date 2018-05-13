@@ -6,14 +6,20 @@
 
 import { fromJS } from 'immutable';
 import {
-  DEFAULT_ACTION,
+  INIT,
+  MOUNT,
+  UNMOUNT,
 } from './constants';
 
 const initialState = fromJS({});
 
 function {{ camelCase name }}Reducer(state = initialState, action) {
   switch (action.type) {
-    case DEFAULT_ACTION:
+    case INIT:
+      return state;
+    case MOUNT:
+      return state;
+    case UNMOUNT:
       return state;
     default:
       return state;

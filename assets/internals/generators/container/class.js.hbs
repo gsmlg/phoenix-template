@@ -16,15 +16,22 @@ import { FormattedMessage } from 'react-intl';
 {{#if wantActionsAndReducer}}
 import { createStructuredSelector } from 'reselect';
 {{/if}}
-import { compose } from 'redux';
+import { bindActionCreators, compose } from 'redux';
 
 {{#if wantSaga}}
 import injectSaga from 'utils/injectSaga';
 {{/if}}
 {{#if wantActionsAndReducer}}
 import injectReducer from 'utils/injectReducer';
-import makeSelect{{properCase name}} from './selectors';
+import {
+  makeSelect{{properCase name}},
+} from './selectors';
 import reducer from './reducer';
+import {
+  init,
+  mount,
+  unmount,
+} from './actions';
 {{/if}}
 {{#if wantSaga}}
 import saga from './saga';
@@ -34,6 +41,18 @@ import messages from './messages';
 {{/if}}
 
 export class {{ properCase name }} extends {{{ type }}} { // eslint-disable-line react/prefer-stateless-function
+  componentwillmount() {
+    this.props.init();
+  }
+
+  componentDidMount() {
+    this.props.mount();
+  }
+
+  componentWillUnmount() {
+    this.props.unmount();
+  }
+
   render() {
     return (
       <div>
@@ -52,7 +71,6 @@ export class {{ properCase name }} extends {{{ type }}} { // eslint-disable-line
 }
 
 {{ properCase name }}.propTypes = {
-  dispatch: PropTypes.func.isRequired,
 };
 
 {{#if wantActionsAndReducer}}
@@ -61,11 +79,11 @@ const mapStateToProps = createStructuredSelector({
 });
 {{/if}}
 
-function mapDispatchToProps(dispatch) {
-  return {
-    dispatch,
-  };
-}
+const mapDispatchToProps = (dispatch) => bindActionCreators({
+  init,
+  mount,
+  unmount,
+}, dispatch)
 
 {{#if wantActionsAndReducer}}
 const withConnect = connect(mapStateToProps, mapDispatchToProps);

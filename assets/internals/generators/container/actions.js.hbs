@@ -5,11 +5,28 @@
  */
 
 import {
-  DEFAULT_ACTION,
+  INIT,
+  MOUNT,
+  UNMOUNT,
 } from './constants';
 
-export function defaultAction() {
+export function init() {
   return {
-    type: DEFAULT_ACTION,
+    type: INIT,
+    payload: {},
+  };
+}
+
+export function mount() {
+  return {
+    type: MOUNT,
+    payload: {},
+  };
+}
+
+export function unmount() {
+  return {
+    type: UNMOUNT,
+    payload: {},
   };
 }
