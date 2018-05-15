@@ -1,4 +1,4 @@
-# Gsmlg
+# GSMLG
 
 To start your Phoenix server:
 
