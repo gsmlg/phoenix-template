@@ -6,7 +6,7 @@ start() {
   sleep 5
   pid=pid
   [ -f priv/pid ] && pid=`cat priv/pid`
-  if [[ `ps -le | awk -v pid="$pid" '{if($2 == (pid)){print $2}}'` -eq $pid ]]
+  if [[ `ps aux | awk -v pid="$pid" '{if($2 == (pid)){print $2}}'` -eq $pid ]]
   then
     echo "Server started! <pid $pid>"
   else
@@ -19,7 +19,7 @@ stop() {
   echo "Stoping service..."
   pid=`cat priv/pid`
   t=0
-  while [[ `ps -le | awk -v pid="$pid" '{if($2 == (pid)){ print $2 }}'` -eq $pid ]]
+  while [[ `ps aux | awk -v pid="$pid" '{if($2 == (pid)){ print $2 }}'` -eq $pid ]]
   do
     t=`expr $t + 1`
     if [[ $t -gt 10 ]]
