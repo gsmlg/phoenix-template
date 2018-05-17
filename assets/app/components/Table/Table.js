@@ -35,7 +35,7 @@ function CustomTable({ ...props }) {
         ) : null}
         <TableBody>
           {tableData.map((prop, key) => (
-            <TableRow >
+            <TableRow key={key}>
               {prop.map((cellProp, k) => (
                 <TableCell className={classes.tableCell} key={cellProp}>
                   {cellProp}
