@@ -53,13 +53,6 @@ const dashboardRoutes = [
     component: Icons,
   },
   {
-    path: '/maps',
-    sidebarName: 'Maps',
-    navbarName: 'Map',
-    icon: LocationOn,
-    component: Maps,
-  },
-  {
     path: '/notifications',
     sidebarName: 'Notifications',
     navbarName: 'Notifications',

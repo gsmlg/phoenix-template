@@ -12,9 +12,7 @@ import { bindActionCreators, compose } from 'redux';
 
 import injectSaga from 'utils/injectSaga';
 import injectReducer from 'utils/injectReducer';
-import {
-  makeSelectPhoenix,
-} from './selectors';
+import { makeSelectPhoenix } from './selectors';
 import reducer from './reducer';
 import {
   init,

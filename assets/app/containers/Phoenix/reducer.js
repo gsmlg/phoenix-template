@@ -32,7 +32,12 @@ function phoenixReducer(state = initialState, action) {
     case LOG_SOCKET:
       return state.update('logs', (logs) => {
         const { kind, msg, data } = payload;
-        return logs.push({ kind, msg, data }).takeLast(1985);
+        return logs.push(fromJS({
+          kind,
+          msg,
+          data,
+          time: new Date(),
+        })).takeLast(1985);
       });
     default:
       return state;

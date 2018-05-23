@@ -16,10 +16,12 @@ import { Switch, Route } from 'react-router-dom';
 
 import HomePage from 'containers/HomePage/Loadable';
 import NotFoundPage from 'containers/NotFoundPage/Loadable';
+import Phoenix from 'containers/Phoenix';
 
 export default function App() {
   return (
     <div>
+      <Phoenix />
       <Switch>
         <Route path="/" component={HomePage} />
         <Route component={NotFoundPage} />
