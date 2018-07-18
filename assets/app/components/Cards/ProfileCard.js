@@ -6,7 +6,7 @@ import {
   CardContent,
   CardActions,
   Typography,
-} from 'material-ui';
+} from '@material-ui/core';
 import PropTypes from 'prop-types';
 
 import profileCardStyle from 'jss/dashboard/profileCardStyle';

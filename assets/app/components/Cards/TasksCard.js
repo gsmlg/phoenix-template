@@ -8,7 +8,7 @@ import {
   Typography,
   Tabs,
   Tab,
-} from 'material-ui';
+} from '@material-ui/core';
 import { BugReport, Code, Cloud } from '@material-ui/icons';
 
 import { Tasks } from 'components';
@@ -50,7 +50,7 @@ class TasksCard extends React.Component {
                   wrapper: classes.tabWrapper,
                   labelIcon: classes.labelIcon,
                   label: classes.label,
-                  textColorInheritSelected: classes.textColorInheritSelected,
+                  selected: classes.textColorInheritSelected,
                 }}
                 icon={<BugReport className={classes.tabIcon} />}
                 label="Bugs"
@@ -60,7 +60,7 @@ class TasksCard extends React.Component {
                   wrapper: classes.tabWrapper,
                   labelIcon: classes.labelIcon,
                   label: classes.label,
-                  textColorInheritSelected: classes.textColorInheritSelected,
+                  selected: classes.textColorInheritSelected,
                 }}
                 icon={<Code className={classes.tabIcon} />}
                 label="Website"
@@ -70,7 +70,7 @@ class TasksCard extends React.Component {
                   wrapper: classes.tabWrapper,
                   labelIcon: classes.labelIcon,
                   label: classes.label,
-                  textColorInheritSelected: classes.textColorInheritSelected,
+                  selected: classes.textColorInheritSelected,
                 }}
                 icon={<Cloud className={classes.tabIcon} />}
                 label="Server"

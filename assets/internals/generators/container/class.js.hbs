@@ -3,7 +3,6 @@
  * {{properCase name }}
  *
  */
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -41,7 +40,7 @@ import messages from './messages';
 {{/if}}
 
 export class {{ properCase name }} extends {{{ type }}} { // eslint-disable-line react/prefer-stateless-function
-  componentwillmount() {
+  componentWillMount() {
     this.props.init();
   }
 
@@ -77,15 +76,13 @@ export class {{ properCase name }} extends {{{ type }}} { // eslint-disable-line
 const mapStateToProps = createStructuredSelector({
   {{ camelCase name }}: makeSelect{{properCase name}}(),
 });
-{{/if}}
 
 const mapDispatchToProps = (dispatch) => bindActionCreators({
   init,
   mount,
   unmount,
-}, dispatch)
+}, dispatch);
 
-{{#if wantActionsAndReducer}}
 const withConnect = connect(mapStateToProps, mapDispatchToProps);
 
 const withReducer = injectReducer({ key: '{{ camelCase name }}', reducer });
@@ -103,5 +100,7 @@ export default compose(
 {{#if wantSaga}}
   withSaga,
 {{/if}}
+{{#if wantActionsAndReducer}}
   withConnect,
+{{/if}}
 )({{ properCase name }});

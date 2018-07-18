@@ -76,7 +76,7 @@ const statsCardStyle = {
   },
   cardStatsIcon: {
     position: 'relative',
-    top: '4px',
+    top: '0px',
     width: '16px',
     height: '16px',
   },

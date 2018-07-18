@@ -10,7 +10,7 @@ import {
   Paper,
   ClickAwayListener,
   Hidden,
-} from 'material-ui';
+} from '@material-ui/core';
 import { Person, Notifications, Dashboard, Search } from '@material-ui/icons';
 
 import { CustomInput, IconButton as SearchButton } from 'components';
