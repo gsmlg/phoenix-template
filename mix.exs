@@ -41,9 +41,10 @@ defmodule Gsmlg.Mixfile do
       {:phoenix_live_reload, "~> 1.0", only: :dev},
       {:gettext, "~> 0.11"},
       {:cowboy, "~> 1.0"},
-      {:guardian, "~> 1.0-beta"},
+      {:guardian, "~> 1.0"},
       {:httpoison, "~> 0.11.1"},
       {:poison, "~> 3.1.0"},
+      {:distillery, "~> 1.5.3", runtime: false},
     ]
   end
 

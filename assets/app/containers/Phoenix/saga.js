@@ -10,13 +10,11 @@ import {
   setSocket,
   logSocket,
 } from './actions';
-import {
-  makeSelectSocket,
-} from './selectors';
+import { makeSelectSocket } from './selectors';
 
 function createLogChannel(socket) {
   return eventChannel((emmiter) => {
-    socket.logger = (kind, msg, data) => {
+    socket.logger = (kind, msg, data) => { // eslint-disable-line no-param-reassign
       emmiter({ kind, msg, data });
     };
     return () => socket.disconnect();

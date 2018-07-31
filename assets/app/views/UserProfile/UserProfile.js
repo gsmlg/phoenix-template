@@ -9,7 +9,7 @@ import {
   ItemGrid,
 } from 'components';
 
-import avatar from 'images/faces/gsmlg.png';
+import avatar from 'images/faces/cp.png';
 
 function UserProfile({ ...props }) {
   return (
@@ -128,9 +128,9 @@ function UserProfile({ ...props }) {
         <ItemGrid xs={12} sm={12} md={4}>
           <ProfileCard
             avatar={avatar}
-            subtitle="Full Stack Web Developer"
-            title="GSMLG"
-            description="Prefer to make a better web appliaction than ever."
+            subtitle="Wooooo...."
+            title="Cock Puncher"
+            description="You'd better have no cocks."
             footer={
               <Button color="primary" round>
                 Follow
