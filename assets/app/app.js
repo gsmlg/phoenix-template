@@ -12,7 +12,6 @@ import '@babel/polyfill';
 import React, { Fragment } from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
-import { ConnectedRouter } from 'react-router-redux';
 import createHistory from 'history/createBrowserHistory';
 import 'sanitize.css/sanitize.css';
 
@@ -47,9 +46,7 @@ const render = (messages) => {
     <Provider store={store}>
       <Fragment>
         <LanguageProvider messages={messages}>
-          <ConnectedRouter history={history}>
-            <App />
-          </ConnectedRouter>
+          <App />
         </LanguageProvider>
         <GlobalStyle />
       </Fragment>
