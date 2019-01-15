@@ -1,7 +1,7 @@
-import { injectGlobal } from 'styled-components';
+import { createGlobalStyle } from 'styled-components';
 
 /* eslint no-unused-expressions: 0 */
-injectGlobal`
+const GlobalStyle = createGlobalStyle`
 .ct-grid {
     stroke: rgba(255, 255, 255, 0.2);
     stroke-width: 1px;
@@ -209,3 +209,5 @@ footer ul li a:hover {
     }
 }
 `;
+
+export default GlobalStyle;
