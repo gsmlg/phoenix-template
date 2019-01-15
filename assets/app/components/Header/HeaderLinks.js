@@ -1,7 +1,9 @@
 import React from 'react';
 import classNames from 'classnames';
-import { Manager, Target, Popper } from 'react-popper';
 import {
+  Manager,
+  Target,
+  Popper,
   withStyles,
   IconButton,
   MenuItem,
