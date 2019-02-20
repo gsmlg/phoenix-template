@@ -2,95 +2,137 @@
  * HomePage
  *
  * This is the first thing users see of our App, at the '/' route
- *
- * NOTE: while this component should technically be a stateless functional
- * component (SFC), hot reloading does not currently support SFCs. If hot
- * reloading is not a necessity for you then you can refactor it and remove
- * the linting exception.
  */
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Switch, Route, Redirect } from 'react-router-dom';
-// creates a beautiful scrollbar
-import PerfectScrollbar from 'perfect-scrollbar';
-import 'perfect-scrollbar/css/perfect-scrollbar.css';
-import { withStyles } from '@material-ui/core';
+import { Helmet } from 'react-helmet';
+import { FormattedMessage } from 'react-intl';
+import { connect } from 'react-redux';
+import { compose } from 'redux';
+import { createStructuredSelector } from 'reselect';
 
-import { Header, Footer, Sidebar } from 'components';
+import injectReducer from 'utils/injectReducer';
+import injectSaga from 'utils/injectSaga';
+import {
+  makeSelectRepos,
+  makeSelectLoading,
+  makeSelectError,
+} from 'containers/App/selectors';
+import H2 from 'components/H2';
+import ReposList from 'components/ReposList';
+import AtPrefix from './AtPrefix';
+import CenteredSection from './CenteredSection';
+import Form from './Form';
+import Input from './Input';
+import Section from './Section';
+import messages from './messages';
+import { loadRepos } from '../App/actions';
+import { changeUsername } from './actions';
+import { makeSelectUsername } from './selectors';
+import reducer from './reducer';
+import saga from './saga';
 
-import appStyle from 'jss/dashboard/appStyle';
-
-import image from 'images/sidebar-2.jpg';
-import logo from 'images/logo.png';
-
-import dashboardRoutes from './routes';
-
-const switchRoutes = (
-  <Switch>
-    {dashboardRoutes.map((prop, key) => {
-      if (prop.redirect) { return <Redirect from={prop.path} to={prop.to} key={prop.navbarName} />; }
-      return <Route path={prop.path} component={prop.component} key={prop.navbarName} />;
-    })}
-  </Switch>
-);
-
-class HomePage extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
-  state = {
-    mobileOpen: false,
-  };
+/* eslint-disable react/prefer-stateless-function */
+export class HomePage extends React.PureComponent {
+  /**
+   * when initial state username is not null, submit the form to load repos
+   */
   componentDidMount() {
-    if (navigator.platform.indexOf('Win') > -1) {
-      // eslint-disable-next-line
-      const ps = new PerfectScrollbar(this.mainPanel);
+    if (this.props.username && this.props.username.trim().length > 0) {
+      this.props.onSubmitForm();
     }
   }
-  componentDidUpdate() {
-    this.mainPanel.scrollTop = 0;
-  }
-  getRoute() {
-    return this.props.location.pathname !== '/maps';
-  }
-  handleDrawerToggle = () => {
-    this.setState({ mobileOpen: !this.state.mobileOpen });
-  };
+
   render() {
-    const { classes, ...rest } = this.props;
+    const { loading, error, repos } = this.props;
+    const reposListProps = {
+      loading,
+      error,
+      repos,
+    };
+
     return (
-      <div className={classes.wrapper}>
-        <Sidebar
-          routes={dashboardRoutes}
-          logoText="GSMLG"
-          logo={logo}
-          image={image}
-          handleDrawerToggle={this.handleDrawerToggle}
-          open={this.state.mobileOpen}
-          color="blue"
-          {...rest}
-        />
-        <div className={classes.mainPanel} ref={(el) => { this.mainPanel = el; }}>
-          <Header
-            routes={dashboardRoutes}
-            handleDrawerToggle={this.handleDrawerToggle}
-            {...rest}
+      <article>
+        <Helmet>
+          <title>Home Page</title>
+          <meta
+            name="description"
+            content="A React.js Boilerplate application homepage"
           />
-          {/* On the /maps route we want the map to be on full screen - this is not possible if the content and conatiner classes are present because they have some paddings which would make the map smaller */}
-          {this.getRoute() ? (
-            <div className={classes.content}>
-              <div className={classes.container}>{switchRoutes}</div>
-            </div>
-          ) : (
-            <div className={classes.map}>{switchRoutes}</div>
-          )}
-          {this.getRoute() ? <Footer /> : null}
+        </Helmet>
+        <div>
+          <CenteredSection>
+            <H2>
+              <FormattedMessage {...messages.startProjectHeader} />
+            </H2>
+            <p>
+              <FormattedMessage {...messages.startProjectMessage} />
+            </p>
+          </CenteredSection>
+          <Section>
+            <H2>
+              <FormattedMessage {...messages.trymeHeader} />
+            </H2>
+            <Form onSubmit={this.props.onSubmitForm}>
+              <label htmlFor="username">
+                <FormattedMessage {...messages.trymeMessage} />
+                <AtPrefix>
+                  <FormattedMessage {...messages.trymeAtPrefix} />
+                </AtPrefix>
+                <Input
+                  id="username"
+                  type="text"
+                  placeholder="mxstbr"
+                  value={this.props.username}
+                  onChange={this.props.onChangeUsername}
+                />
+              </label>
+            </Form>
+            <ReposList {...reposListProps} />
+          </Section>
         </div>
-      </div>
+      </article>
     );
   }
 }
 
 HomePage.propTypes = {
-  classes: PropTypes.object.isRequired,
+  loading: PropTypes.bool,
+  error: PropTypes.oneOfType([PropTypes.object, PropTypes.bool]),
+  repos: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
+  onSubmitForm: PropTypes.func,
+  username: PropTypes.string,
+  onChangeUsername: PropTypes.func,
 };
 
-export default withStyles(appStyle)(HomePage);
+export function mapDispatchToProps(dispatch) {
+  return {
+    onChangeUsername: evt => dispatch(changeUsername(evt.target.value)),
+    onSubmitForm: evt => {
+      if (evt !== undefined && evt.preventDefault) evt.preventDefault();
+      dispatch(loadRepos());
+    },
+  };
+}
+
+const mapStateToProps = createStructuredSelector({
+  repos: makeSelectRepos(),
+  username: makeSelectUsername(),
+  loading: makeSelectLoading(),
+  error: makeSelectError(),
+});
+
+const withConnect = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+);
+
+const withReducer = injectReducer({ key: 'home', reducer });
+const withSaga = injectSaga({ key: 'home', saga });
+
+export default compose(
+  withReducer,
+  withSaga,
+  withConnect,
+)(HomePage);
