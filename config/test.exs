@@ -10,7 +10,6 @@ config :gsmlg, GsmlgWeb.Endpoint,
 config :logger, level: :warn
 
 # Configure your database
-config :gsmlg, Gsmlg.Repo,
-  adapter: EctoMnesia.Adapter
+#config :gsmlg, Gsmlg.Repo,
+#  adapter: Ecto.Adapter
 
-config :mnesia, :dir, 'priv/data/mnesia/test'

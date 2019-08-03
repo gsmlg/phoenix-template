@@ -41,7 +41,6 @@ config :logger, level: :info
 # which should be versioned separately.
 # import_config "prod.secret.exs"
 # Configure your database
-config :gsmlg, Gsmlg.Repo,
-  adapter: EctoMnesia.Adapter
+#config :gsmlg, Gsmlg.Repo,
+#  adapter: Ecto.Adapter
 
-config :mnesia, :dir, "priv/data/mnesia/prod"

@@ -33,7 +33,6 @@ config :logger, :console, format: "[$level] $message\n"
 config :phoenix, :stacktrace_depth, 20
 
 # Configure your database
-config :gsmlg, Gsmlg.Repo,
-  adapter: EctoMnesia.Adapter
+#config :gsmlg, Gsmlg.Repo,
+#  adapter: Ecto.Adapter
 
-config :mnesia, :dir, 'priv/data/mnesia/dev'
