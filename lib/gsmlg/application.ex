@@ -8,8 +8,8 @@ defmodule Gsmlg.Application do
 
     # Define workers and child supervisors to be supervised
     children = [
-      # Start the Ecto repository
-      supervisor(Gsmlg.Repo, []),
+      # Start the Ecto repository, need for Adapter
+      #supervisor(Gsmlg.Repo, []),
       # Start the endpoint when the application starts
       supervisor(GsmlgWeb.Endpoint, []),
       # Start your own worker by calling: Gsmlg.Worker.start_link(arg1, arg2, arg3)
