@@ -7,6 +7,8 @@ const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CircularDependencyPlugin = require('circular-dependency-plugin');
 
+const jsRootPath = path.resolve(__dirname, '..', '..');
+
 module.exports = require('./webpack.base.babel')({
   mode: 'development',
 
@@ -14,7 +16,7 @@ module.exports = require('./webpack.base.babel')({
   entry: [
     require.resolve('react-app-polyfill/ie11'),
     'webpack-hot-middleware/client?reload=true',
-    path.join(process.cwd(), 'app/app.js'), // Start with js/app.js
+    path.join(jsRootPath, 'app/app.js'), // Start with js/app.js
   ],
 
   // Don't use hashes in dev mode for better performance

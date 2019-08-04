@@ -43,7 +43,7 @@ defmodule Gsmlg.Mixfile do
       {:plug_cowboy, "~> 2.0"},
       {:guardian, "~> 1.0"},
       {:httpoison, "~> 1.5.0"},
-      {:poison, "~> 4.0.0"},
+      {:jason, "~> 1.0"},
       {:distillery, "~> 2.1.1", runtime: false},
     ]
   end

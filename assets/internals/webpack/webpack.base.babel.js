@@ -5,13 +5,15 @@
 const path = require('path');
 const webpack = require('webpack');
 
+const rootPath = path.resolve(__dirname, '..', '..', '..');
+
 module.exports = options => ({
   mode: options.mode,
   entry: options.entry,
   output: Object.assign(
     {
       // Compile into js/build.js
-      path: path.resolve(process.cwd(), 'build'),
+      path: path.resolve(rootPath, 'priv', 'static'),
       publicPath: '/',
     },
     options.output,
