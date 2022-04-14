@@ -33,18 +33,20 @@ defmodule Gsmlg.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.4.0"},
-      {:phoenix_pubsub, "~> 1.0"},
+      {:phoenix, "~> 1.6.0"},
+      {:phoenix_pubsub, "~> 2.0"},
       {:phoenix_ecto, "~> 4.0"},
-      {:phoenix_html, "~> 2.10"},
+      {:phoenix_html, "~> 3.0"},
       {:phoenix_live_reload, "~> 1.0", only: :dev},
+      {:phoenix_live_view, "~> 0.17.0"},
       {:gettext, "~> 0.11"},
       {:cowboy, "~> 2.0"},
       {:plug_cowboy, "~> 2.0"},
-      {:guardian, "~> 1.0"},
-      {:httpoison, "~> 1.5.0"},
+      {:guardian, "~> 2.0"},
+      {:httpoison, "~> 1.8.0"},
       {:jason, "~> 1.0"},
       {:distillery, "~> 2.1.1", runtime: false},
+      {:esbuild, "~> 0.2", runtime: Mix.env() == :dev},
     ]
   end
 
@@ -58,6 +60,7 @@ defmodule Gsmlg.Mixfile do
     [
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
+      "assets.deploy": ["esbuild default --minify", "phx.digest"],
       test: ["ecto.create --quiet", "ecto.migrate", "test"]
     ]
   end

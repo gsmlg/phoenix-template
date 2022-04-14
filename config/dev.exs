@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 # Configure your database
 # config :gsmlg, Gsmlg.Repo,
@@ -21,12 +21,8 @@ config :gsmlg, GsmlgWeb.Endpoint,
   code_reloader: true,
   check_origin: false,
   watchers: [
-    node: [
-      "yarn",
-      "run",
-      "build:watch",
-      cd: Path.expand("../assets", __DIR__)
-    ]
+    # Start the esbuild watcher by calling Esbuild.install_and_run(:default, args)
+    esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]}
   ]
 
 # ## SSL Support

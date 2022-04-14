@@ -11,7 +11,8 @@ defmodule Gsmlg.Application do
       # Start the Ecto repository, not set
       # Gsmlg.Repo,
       # Start the endpoint when the application starts
-      GsmlgWeb.Endpoint
+      GsmlgWeb.Endpoint,
+      {Phoenix.PubSub, [name: Gsmlg.PubSub, adapter: Phoenix.PubSub.PG2]}
       # Starts a worker by calling: Gsmlg.Worker.start_link(arg)
       # {Gsmlg.Worker, arg},
     ]
