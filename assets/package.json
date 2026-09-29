@@ -1,6 +1,9 @@
 {
+  "name": "gsmlg-phoenix-template",
+  "private": true,
+  "type": "module",
   "dependencies": {
-    "phoenix": "^1.6.6",
-    "phoenix_html": "^3.2.0"
+    "@duskmoon-dev/core": "1.17.0",
+    "@duskmoon-dev/elements": "1.5.5"
   }
 }

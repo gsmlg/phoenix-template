@@ -4,10 +4,10 @@ defmodule GsmlgWeb.Router do
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
-    plug :fetch_flash
+    plug :fetch_live_flash
+    plug :put_root_layout, html: {GsmlgWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
-    plug(:put_root_layout, {GsmlgWeb.LayoutView, :root})
   end
 
   pipeline :api do
@@ -17,16 +17,6 @@ defmodule GsmlgWeb.Router do
   scope "/", GsmlgWeb do
     pipe_through :browser
 
-    get "/", PageController, :index
-  end
-
-  # Other scopes may use custom stacks.
-  # scope "/api", GsmlgWeb do
-  #   pipe_through :api
-  # end
-
-  scope "/", GsmlgWeb do
-    pipe_through :browser # Use the default browser stack
-    get "/*not_found", PageController, :not_found
+    get "/", PageController, :home
   end
 end

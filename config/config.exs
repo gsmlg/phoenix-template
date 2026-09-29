@@ -1,38 +1,43 @@
-# This file is responsible for configuring your application
-# and its dependencies with the aid of the Mix.Config module.
-#
-# This configuration file is loaded before any dependency and
-# is restricted to this project.
 import Config
 
-# General application configuration
 config :gsmlg,
-  ecto_repos: [Gsmlg.Repo]
+  ecto_repos: [Gsmlg.Repo],
+  generators: [timestamp_type: :utc_datetime]
 
-# Configures the endpoint
 config :gsmlg, GsmlgWeb.Endpoint,
   url: [host: "localhost"],
-  secret_key_base: "pSvbnNLmHxY/I9Q/hOkyOWyFrdFWpUDs0uzjM9TK2uP9U7wd+A0wwVYMh8gQhlqH",
-  render_errors: [view: GsmlgWeb.ErrorView, accepts: ~w(html json)],
-  pubsub_server: Gsmlg.PubSub
+  adapter: Bandit.PhoenixAdapter,
+  render_errors: [formats: [html: GsmlgWeb.ErrorHTML, json: GsmlgWeb.ErrorJSON], layout: false],
+  pubsub_server: Gsmlg.PubSub,
+  live_view: [signing_salt: "gsmlg-template-salt"]
 
-# Configures Elixir's Logger
-config :logger, :console,
+config :phoenix_live_view, root_tag_attribute: "phx-r"
+
+config :duskmoon_bundler,
+  resolve_dirs: ["node_modules", "deps"],
+  target: :es2022,
+  sourcemap: :inline
+
+config :duskmoon_bundler, :gsmlg,
+  entry: "assets/js/app.js",
+  outdir: "priv/static/assets",
+  root: "assets",
+  asset_url_prefix: "/assets",
+  tailwind: [
+    css: "assets/css/app.css",
+    sources: [
+      %{base: "lib/gsmlg_web", pattern: "**/*.{ex,heex}"},
+      %{base: "lib/gsmlg", pattern: "**/*.{ex,heex}"},
+      %{base: "deps/phoenix_duskmoon/lib/phoenix_duskmoon", pattern: "**/*.{ex,heex}"},
+      %{base: "assets", pattern: "**/*.{js,css}"}
+    ]
+  ],
+  server: [prefix: "/assets", watch_dirs: ["lib/gsmlg_web", "lib/gsmlg", "assets"]]
+
+config :logger, :default_formatter,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
 
-# Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
-# Configure esbuild (the version is required)
-config :esbuild,
-  version: "0.12.18",
-  default: [
-    args: ~w(js/app.js --bundle --target=esnext --outdir=../priv/static/assets),
-    cd: Path.expand("../assets", __DIR__),
-    env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
-  ]
-
-# Import environment specific config. This must remain at the bottom
-# of this file so it overrides the configuration defined above.
-import_config "#{Mix.env()}.exs"
+import_config "#{config_env()}.exs"

@@ -1,30 +1,22 @@
 defmodule Gsmlg.Application do
-  # See https://hexdocs.pm/elixir/Application.html
-  # for more information on OTP Applications
   @moduledoc false
 
   use Application
 
+  @impl true
   def start(_type, _args) do
-    # List all child processes to be supervised
     children = [
-      # Start the Ecto repository, not set
-      # Gsmlg.Repo,
-      # Start the endpoint when the application starts
-      GsmlgWeb.Endpoint,
-      {Phoenix.PubSub, [name: Gsmlg.PubSub, adapter: Phoenix.PubSub.PG2]}
-      # Starts a worker by calling: Gsmlg.Worker.start_link(arg)
-      # {Gsmlg.Worker, arg},
+      Gsmlg.Repo,
+      GsmlgWeb.Telemetry,
+      {DNSCluster, query: Application.get_env(:gsmlg, :dns_cluster_query) || :ignore},
+      {Phoenix.PubSub, name: Gsmlg.PubSub},
+      GsmlgWeb.Endpoint
     ]
 
-    # See https://hexdocs.pm/elixir/Supervisor.html
-    # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: Gsmlg.Supervisor]
-    Supervisor.start_link(children, opts)
+    Supervisor.start_link(children, strategy: :one_for_one, name: Gsmlg.Supervisor)
   end
 
-  # Tell Phoenix to update the endpoint configuration
-  # whenever the application is updated.
+  @impl true
   def config_change(changed, _new, removed) do
     GsmlgWeb.Endpoint.config_change(changed, removed)
     :ok

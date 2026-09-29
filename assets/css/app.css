@@ -1,144 +1,38 @@
-/* This file is for your main application CSS */
-@import './base.css';
+@import "tailwindcss";
+@plugin "@duskmoon-dev/core/plugin";
+@import "@duskmoon-dev/core/themes/sunshine";
+@import "@duskmoon-dev/core/themes/moonlight";
+@import "@duskmoon-dev/core/components";
 
-.main {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: flex-start;
-  min-height: calc(100vh - 44px);
-  width: inherit;
-  margin: 0;
-  padding: 0;
-  border: none;
-}
-[data-phx-main] {
-  display: flex;
-  flex: 1 1 auto;
-}
-/* Alerts and form errors used by phx.new */
-.alert {
-  padding: 15px;
-  margin-bottom: 20px;
-  border: 1px solid transparent;
-  border-radius: 4px;
-}
-.alert-info {
-  color: #31708f;
-  background-color: #d9edf7;
-  border-color: #bce8f1;
-}
-.alert-warning {
-  color: #8a6d3b;
-  background-color: #fcf8e3;
-  border-color: #faebcc;
-}
-.alert-danger {
-  color: #a94442;
-  background-color: #f2dede;
-  border-color: #ebccd1;
-}
-.alert p {
-  margin-bottom: 0;
-}
-.alert:empty {
-  display: none;
-}
-.invalid-feedback {
-  color: #a94442;
-  display: block;
-  margin: -1rem 0 2rem;
-}
+@source "../js";
+@source "../../lib/gsmlg_web";
+@source "../../deps/phoenix_duskmoon/lib/phoenix_duskmoon/";
 
-/* LiveView specific classes for your customization */
-.phx-no-feedback.invalid-feedback,
-.phx-no-feedback .invalid-feedback {
-  display: none;
+@custom-variant phx-click-loading (.phx-click-loading&, .phx-click-loading &);
+@custom-variant phx-submit-loading (.phx-submit-loading&, .phx-submit-loading &);
+@custom-variant phx-change-loading (.phx-change-loading&, .phx-change-loading &);
+
+[data-phx-session], [data-phx-teleported-src] {
+  display: contents;
 }
 
 .phx-click-loading {
   opacity: 0.5;
-  transition: opacity 1s ease-out;
+  transition: opacity 0.2s ease;
 }
 
 .phx-disconnected {
   cursor: wait;
 }
+
 .phx-disconnected * {
   pointer-events: none;
 }
 
-.phx-modal {
-  opacity: 1 !important;
-  position: fixed;
-  z-index: 1;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  background-color: rgb(0, 0, 0);
-  background-color: rgba(0, 0, 0, 0.4);
-}
-
-.phx-modal-content {
-  background-color: #fefefe;
-  margin: 15vh auto;
-  padding: 20px;
-  border: 1px solid #888;
-  width: 80%;
-}
-
-.phx-modal-close {
-  color: #aaa;
-  float: right;
-  font-size: 28px;
-  font-weight: bold;
-}
-
-.phx-modal-close:hover,
-.phx-modal-close:focus {
-  color: black;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.main-container {
-  margin-top: 3rem;
-  min-height: calc(100vh - 3rem);
-  display: flex;
-  flex-direction: column;
-}
-
-.side-nav {
-  margin-top: 3rem;
-  min-height: calc(100vh - 3rem);
-}
-
-.content-table {
-  display: flex;
-  flex: 1 1 auto;
-  flex-direction: column;
-}
-
-.form-group {
-  margin-bottom: 0.3em;
-}
-.form-group ui5-input,
-.form-group ui5-date-picker,
-.form-group ui5-textarea,
-.form-group .full-width {
-  width: 100%;
-}
-
-.show-info .show-field {
-  display: flex;
-  align-items: center;
-}
-.show-info .show-field ui5-label{
-  flex: 1 1 auto;
-}
-.show-info .show-field .label{
-  flex: 0 0 200px;
+.invalid-feedback {
+  display: block;
+  margin-top: 0.25rem;
+  color: var(--color-error);
+  font-size: 0.875rem;
 }
 

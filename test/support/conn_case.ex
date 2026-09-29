@@ -18,8 +18,8 @@ defmodule GsmlgWeb.ConnCase do
   using do
     quote do
       # Import conveniences for testing with connections
-      use Phoenix.ConnTest
-      alias GsmlgWeb.Router.Helpers, as: Routes
+      import Plug.Conn
+      import Phoenix.ConnTest
 
       # The default endpoint for testing
       @endpoint GsmlgWeb.Endpoint
@@ -27,10 +27,12 @@ defmodule GsmlgWeb.ConnCase do
   end
 
   setup tags do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Gsmlg.Repo)
+    if Process.whereis(Gsmlg.Repo) do
+      :ok = Ecto.Adapters.SQL.Sandbox.checkout(Gsmlg.Repo)
 
-    unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(Gsmlg.Repo, {:shared, self()})
+      unless tags[:async] do
+        Ecto.Adapters.SQL.Sandbox.mode(Gsmlg.Repo, {:shared, self()})
+      end
     end
 
     {:ok, conn: Phoenix.ConnTest.build_conn()}
