@@ -19,5 +19,6 @@ defmodule GsmlgWeb.Router do
     pipe_through(:browser)
 
     live("/", HomeLive, :index)
+    live("/ui", UILive, :index)
   end
 end

@@ -17,6 +17,7 @@ defmodule GsmlgWeb.Layouts do
           </a>
           <div class="flex items-center gap-2 text-sm">
             <a href="https://hexdocs.pm/phoenix" class="btn btn-ghost">Docs</a>
+            <.link navigate={~p"/ui"} class="btn btn-ghost">UI examples</.link>
             <.dm_theme_switcher />
           </div>
         </div>

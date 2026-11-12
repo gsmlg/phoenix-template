@@ -75,3 +75,14 @@ alias and exit status. A temporary dependency-free Mix release, built with the
 exact post-assembly function, successfully executed help, version, and migration
 dispatch in a real release VM. Its migration function was a stub, so this is not
 a PostgreSQL integration test or a successful build of the full template.
+
+## UI recipe page (2026-11-12)
+
+Added `/ui`, navigation and Phoenix DuskMoon button/alert element registration.
+Component attrs/slots were checked against the upstream source linked in
+`ui-examples.md`. Elixir source parsing/formatting, JavaScript syntax, existing
+Node tests and `git diff --check` pass. LiveView and browser cases were added for
+form errors/success, search empty-state recovery, confirmation cancel/restore,
+progress and reload. They have not executed: full Mix compilation still stops on
+missing dependencies and the existing inconsistent lock. No browser/rendered UI
+or accessibility acceptance is claimed.

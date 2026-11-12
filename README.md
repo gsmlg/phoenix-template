@@ -158,3 +158,9 @@ reviewed rollback. `restart_prod.sh` only wraps release lifecycle commands.
 - Add authentication, jobs, storage, and other services when the product needs them.
 
 See [the rebuild notes](docs/template-rebuild.md) for boundaries and migration guidance.
+
+## UI component recipes
+
+Visit `/ui` for interactive Phoenix DuskMoon form, button, card, badge,
+confirmation, search and progress examples. See [UI recipes](docs/ui-examples.md)
+for source locations, state boundaries and verification status.

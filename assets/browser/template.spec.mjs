@@ -139,3 +139,37 @@ test("LiveView falls back to longpoll when WebSocket transport is closed", async
   await page.locator("#increment").click();
   await expect(page.locator("#counter")).toHaveText("1");
 });
+
+test("UI recipes support validation, cancel/retry, search recovery and progress", async ({ page }) => {
+  const errors = [];
+  page.on("pageerror", error => errors.push(error.message));
+  await page.goto("/ui");
+  await expect.poll(() => page.evaluate(() => window.liveSocket?.isConnected())).toBe(true);
+  await page.locator("#profile-name").fill("A");
+  await page.locator("#save-profile").click();
+  await expect(page.locator("#profile-name-errors")).toContainText("2 and 60");
+  await page.locator("#profile-name").fill("Ada");
+  await page.locator("#save-profile").click();
+  await expect(page.locator("#saved-profile")).toContainText("Ada");
+  await page.locator("#search-query").fill("not-found");
+  await expect(page.locator("#empty-results")).toBeVisible();
+  await page.locator("#search-query").fill("");
+  await expect(page.locator("#empty-results")).toHaveCount(0);
+  await page.locator("#ask-remove").getByRole("button").click();
+  await page.locator("#cancel-remove").getByRole("button").click();
+  await expect(page.locator("#removed-item")).toHaveCount(0);
+  await page.locator("#ask-remove").getByRole("button").click();
+  await page.locator("#confirm-remove").getByRole("button").click();
+  await expect(page.locator("#removed-item")).toBeVisible();
+  await page.locator("#restore-item").getByRole("button").click();
+  for (let step = 1; step <= 4; step++) {
+    await page.locator("#advance-progress").getByRole("button").click();
+    await expect(page.locator("#demo-progress")).toHaveAttribute("aria-valuenow", String(step * 25));
+  }
+  await page.locator("#reset-progress").getByRole("button").click();
+  await expect(page.locator("#demo-progress")).toHaveAttribute("aria-valuenow", "0");
+  await page.reload();
+  await expect(page.locator("#saved-profile")).toHaveCount(0);
+  await expect(page.locator("#ask-remove")).toBeVisible();
+  expect(errors).toEqual([]);
+});

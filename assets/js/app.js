@@ -1,3 +1,5 @@
+import "@duskmoon-dev/elements/el-button/register";
+import "@duskmoon-dev/elements/el-alert/register";
 import { synchronizeTheme } from "./theme.js";
 import "phoenix_html";
 import { Socket } from "phoenix";
