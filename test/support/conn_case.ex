@@ -17,6 +17,8 @@ defmodule GsmlgWeb.ConnCase do
 
   using do
     quote do
+      use GsmlgWeb, :verified_routes
+
       # Import conveniences for testing with connections
       import Plug.Conn
       import Phoenix.ConnTest
@@ -27,14 +29,7 @@ defmodule GsmlgWeb.ConnCase do
   end
 
   setup tags do
-    if Process.whereis(Gsmlg.Repo) do
-      :ok = Ecto.Adapters.SQL.Sandbox.checkout(Gsmlg.Repo)
-
-      unless tags[:async] do
-        Ecto.Adapters.SQL.Sandbox.mode(Gsmlg.Repo, {:shared, self()})
-      end
-    end
-
+    Gsmlg.DataCase.setup_sandbox(tags)
     {:ok, conn: Phoenix.ConnTest.build_conn()}
   end
 end

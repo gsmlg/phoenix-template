@@ -9,3 +9,5 @@ npm-offline-mirror
 .DS_Store
 npm-debug.log
 .idea
+playwright-report/
+test-results/

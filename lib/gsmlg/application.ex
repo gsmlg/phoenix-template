@@ -5,9 +5,11 @@ defmodule Gsmlg.Application do
 
   @impl true
   def start(_type, _args) do
+    Gsmlg.RuntimeRequirements.check!()
+
     children = [
       Gsmlg.Repo,
-      GsmlgWeb.Telemetry,
+      {Phoenix.SessionProcess, []},
       {DNSCluster, query: Application.get_env(:gsmlg, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Gsmlg.PubSub},
       GsmlgWeb.Endpoint

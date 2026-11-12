@@ -1,58 +1,14 @@
-#!/bin/bash
-
-start() {
-  echo "Starting service..."
-  MIX_ENV=prod PORT=80 elixir --detached -e "File.write! 'priv/pid', :os.getpid" -S mix phx.server
-  sleep 5
-  pid=pid
-  [ -f priv/pid ] && pid=`cat priv/pid`
-  if [[ `ps aux | awk -v pid="$pid" '{if($2 == (pid)){print $2}}'` -eq $pid ]]
-  then
-    echo "Server started! <pid $pid>"
-  else
-    [ -f priv/pid ] && rm -f priv/pid
-    echo "Server start failure!"
-  fi
-}
-
-stop() {
-  echo "Stoping service..."
-  pid=`cat priv/pid`
-  t=0
-  while [[ `ps aux | awk -v pid="$pid" '{if($2 == (pid)){ print $2 }}'` -eq $pid ]]
-  do
-    t=`expr $t + 1`
-    if [[ $t -gt 10 ]]
-    then
-      kill -9 $pid
-    else
-      kill $pid
-    fi
-    sleep 1
-  done
-  rm -f priv/pid
-  echo "Server Stoped!"
-}
-
-case $1 in
-    start)
-        start
-        ;;
-    stop)
-        stop
-        ;;
-    restart)
-        stop
-        start
-        ;;
-    *)
-        if [ -f priv/pid ]
-        then
-            stop
-            start
-        else
-            start
-        fi
-        ;;
+#!/bin/sh
+# Compatibility wrapper around the release lifecycle, never raw PID files.
+set -eu
+release="${RELEASE_ROOT:-_build/prod/rel/gsmlg}/bin/gsmlg"
+if [ ! -x "$release" ]; then
+  echo "Build a production release first; see README.md." >&2
+  exit 1
+fi
+case "${1:-}" in
+  start) exec "$release" start ;;
+  stop) exec "$release" stop ;;
+  restart) exec "$release" restart ;;
+  *) echo "Usage: $0 {start|stop|restart}" >&2; exit 2 ;;
 esac
-

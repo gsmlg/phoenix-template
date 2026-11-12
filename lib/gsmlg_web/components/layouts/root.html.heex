@@ -21,8 +21,14 @@
     ></script>
     <script>
       (() => {
-        const theme = localStorage.getItem("theme");
-        if (theme && theme !== "default") document.documentElement.setAttribute("data-theme", theme);
+        try {
+          const theme = localStorage.getItem("theme");
+          if (theme === "sunshine" || theme === "moonlight") {
+            document.documentElement.setAttribute("data-theme", theme);
+          }
+        } catch {
+          // Storage restrictions must not interrupt the initial page render.
+        }
       })();
     </script>
   </head>

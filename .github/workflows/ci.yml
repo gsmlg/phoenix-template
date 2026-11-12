@@ -1,0 +1,118 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    env:
+      VIZE_EX_BUILD: "1"
+      CARGO_BUILD_JOBS: "2"
+    services:
+      postgres:
+        image: postgres:17-bookworm
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 3s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: "28.1"
+          elixir-version: "1.18.4"
+          install-hex: false
+      - name: Verify committed dependency lock before downloads
+        run: |
+          elixir scripts/check_dependency_lock_test.exs
+          elixir scripts/check_dependency_lock.exs
+      - name: Build Hex for OTP 28
+        run: |
+          git clone --depth 1 --branch v2.7.0 https://github.com/hexpm/hex.git "$RUNNER_TEMP/hex"
+          cd "$RUNNER_TEMP/hex"
+          mix archive.build
+          mix archive.install hex-2.7.0.ez --force
+          mix local.rebar --force
+      - name: Install pinned Rust toolchain
+        run: rustup toolchain install 1.99.1 --profile minimal && rustup default 1.99.1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24.22.1"
+          cache: npm
+          cache-dependency-path: assets/package-lock.json
+      - uses: actions/cache@v4
+        with:
+          path: |
+            deps
+            _build
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-beam-28.1-1.18.4-rust-1.99.1-${{ hashFiles('mix.lock') }}
+      - run: mix deps.get --check-locked
+      - run: mix assets.setup
+      - run: npm test && npm audit --omit=dev --audit-level=high
+        working-directory: assets
+      - run: mix precommit
+      - run: sudo apt-get update && sudo apt-get install -y inotify-tools
+      - name: Install browser test runtime
+        run: npx playwright install --with-deps chromium
+        working-directory: assets
+      - name: Verify LiveView and Hologram in Chromium
+        run: |
+          mix ecto.create
+          mix ecto.migrate
+          mix assets.build
+          HOLOGRAM_START=1 mix phx.server > "$RUNNER_TEMP/phoenix-server.log" 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          ready=0
+          for attempt in $(seq 1 180); do
+            if curl --fail --silent http://localhost:4000/ > /dev/null; then
+              ready=1
+              break
+            fi
+            if ! kill -0 "$server_pid" 2>/dev/null; then
+              cat "$RUNNER_TEMP/phoenix-server.log"
+              exit 1
+            fi
+            sleep 2
+          done
+          if [ "$ready" != 1 ]; then
+            cat "$RUNNER_TEMP/phoenix-server.log"
+            exit 1
+          fi
+          npm --prefix assets run test:browser
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: browser-failure-details
+          path: |
+            assets/test-results
+            ${{ runner.temp }}/phoenix-server.log
+          if-no-files-found: ignore
+      - name: Build production assets and Hologram bundles
+        run: MIX_ENV=prod mix assets.deploy
+      - name: Build release
+        run: MIX_ENV=prod mix compile --warnings-as-errors && MIX_ENV=prod mix release
+      - run: git diff --exit-code && git diff --check
+  image:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          tags: phoenix-template:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

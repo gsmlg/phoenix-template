@@ -1,6 +1,6 @@
 import Config
 
-if System.get_env("PHX_SERVER") do
+if System.get_env("PHX_SERVER") in ~w(true 1) do
   config :gsmlg, GsmlgWeb.Endpoint, server: true
 end
 

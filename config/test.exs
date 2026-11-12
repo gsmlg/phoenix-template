@@ -1,10 +1,12 @@
 import Config
 
 config :gsmlg, Gsmlg.Repo,
-  username: "postgres",
-  password: "postgres",
-  hostname: "localhost",
-  database: "gsmlg_test#{System.get_env("MIX_TEST_PARTITION")}",
+  username: System.get_env("PGUSER", "postgres"),
+  password: System.get_env("PGPASSWORD", "postgres"),
+  hostname: System.get_env("PGHOST", "localhost"),
+  port: String.to_integer(System.get_env("PGPORT", "5432")),
+  database:
+    System.get_env("PGDATABASE_TEST", "gsmlg_test") <> System.get_env("MIX_TEST_PARTITION", ""),
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: 10
 

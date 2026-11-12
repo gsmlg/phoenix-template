@@ -3,7 +3,7 @@ defmodule GsmlgWeb do
   The entrypoint for defining the web interface.
   """
 
-  def static_paths, do: ~w(assets fonts images favicon.ico robots.txt)
+  def static_paths, do: ~w(assets fonts images hologram favicon.ico robots.txt)
 
   def router do
     quote do

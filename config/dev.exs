@@ -2,19 +2,15 @@ import Config
 
 gsmlg_duskmoon_bundler_watcher = [
   name: Gsmlg.Assets.DuskmoonBundlerWatcher,
-  root: "assets",
-  watch_dirs: ["lib/gsmlg_web", "lib/gsmlg", "assets"],
-  tailwind: true,
-  tailwind_css: "assets/css/app.css",
-  tailwind_outdir: "priv/static/assets/css",
-  target: :es2022
+  profile: :gsmlg
 ]
 
 config :gsmlg, Gsmlg.Repo,
-  username: "postgres",
-  password: "postgres",
-  hostname: "localhost",
-  database: "gsmlg_dev",
+  username: System.get_env("PGUSER", "postgres"),
+  password: System.get_env("PGPASSWORD", "postgres"),
+  hostname: System.get_env("PGHOST", "localhost"),
+  port: String.to_integer(System.get_env("PGPORT", "5432")),
+  database: System.get_env("PGDATABASE", "gsmlg_dev"),
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10

@@ -40,4 +40,10 @@ config :logger, :default_formatter,
 
 config :phoenix, :json_library, Jason
 
+config :phoenix_session_process,
+  session_process: Gsmlg.PageState,
+  session_ttl: :timer.minutes(30),
+  max_sessions: 1_000,
+  rate_limit: 120
+
 import_config "#{config_env()}.exs"
