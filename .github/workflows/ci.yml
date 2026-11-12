@@ -33,6 +33,7 @@ jobs:
           install-hex: false
       - name: Verify committed dependency lock before downloads
         run: |
+          sh scripts/test_release_migrate.sh
           elixir scripts/check_dependency_lock_test.exs
           elixir scripts/check_dependency_lock.exs
       - name: Build Hex for OTP 28
@@ -102,7 +103,10 @@ jobs:
       - name: Build production assets and Hologram bundles
         run: MIX_ENV=prod mix assets.deploy
       - name: Build release
-        run: MIX_ENV=prod mix compile --warnings-as-errors && MIX_ENV=prod mix release
+        run: |
+          MIX_ENV=prod mix compile --warnings-as-errors
+          MIX_ENV=prod mix release
+          test -x _build/prod/rel/gsmlg/bin/migrate
       - run: git diff --exit-code && git diff --check
   image:
     runs-on: ubuntu-24.04

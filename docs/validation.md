@@ -55,3 +55,12 @@ complete `mix deps.get`, rerun the lock preflight, then run `mix setup`,
 `mix precommit`, npm tests/audit, browser tests, production assets/release and
 Docker checks. Keep native dependency builds serial. These are local validation
 results; publishing this checkpoint does not make it a verified release.
+
+## Release migration command (2026-11-12)
+
+Added executable `rel/overlays/bin/migrate`, included in Mix releases as
+`bin/migrate`. Its dependency-independent shell contract tests verify invocation
+from an unrelated directory, a path containing spaces, argument rejection, and
+propagation of the release launcher's exit status. These tests use a fake launcher;
+they do not verify real database migrations. Production release assembly and a
+PostgreSQL migration smoke test remain blocked by the dependency-lock issues above.

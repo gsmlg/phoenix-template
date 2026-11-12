@@ -123,12 +123,23 @@ platform. Use a database-readiness probe appropriate to your deployment.
 Migrations are an explicit deployment step, never an application-startup effect:
 
 ```sh
-_build/prod/rel/gsmlg/bin/gsmlg eval 'Gsmlg.Release.migrate()'
+_build/prod/rel/gsmlg/bin/migrate
 PHX_SERVER=true _build/prod/rel/gsmlg/bin/gsmlg start
 ```
 
-For the container, override its command with `/app/bin/gsmlg eval
-'Gsmlg.Release.migrate()'` and supply the same runtime environment. Run migrations
+The executable `bin/migrate` is included by Mix release from `rel/overlays`.
+It resolves its sibling release launcher independently of the current directory,
+runs all pending migrations using `Gsmlg.Release.migrate/0`, and propagates failures
+as a nonzero exit status. It starts the repository through `Ecto.Migrator.with_repo/2`,
+not the web application. Supply the same runtime environment listed above.
+
+For the container, override its command with `/app/bin/migrate`:
+
+```sh
+docker run --rm --env-file production.env phoenix-template /app/bin/migrate
+```
+
+Run migrations
 once per deployment after backup/review, not independently on every replica.
 `Gsmlg.Release.rollback(Gsmlg.Repo, version)` is available for a deliberate,
 reviewed rollback. `restart_prod.sh` only wraps release lifecycle commands.
