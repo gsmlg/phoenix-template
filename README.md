@@ -123,20 +123,25 @@ platform. Use a database-readiness probe appropriate to your deployment.
 Migrations are an explicit deployment step, never an application-startup effect:
 
 ```sh
-_build/prod/rel/gsmlg/bin/migrate
+_build/prod/rel/gsmlg/bin/gsmlg migrate
 PHX_SERVER=true _build/prod/rel/gsmlg/bin/gsmlg start
 ```
 
-The executable `bin/migrate` is included by Mix release from `rel/overlays`.
+The public Unix release launcher supports `bin/gsmlg {start,daemon,migrate}`.
+Run `bin/gsmlg help` (or `--help`, `-h`, or no arguments) for usage.
+A custom post-assembly step retains the generated Mix launcher as
+`bin/gsmlg.runtime` and installs a thin dispatcher as `bin/gsmlg`. All commands
+other than migrate/help are forwarded unchanged with `exec`, including start
+and daemon. `bin/migrate` remains a compatibility alias.
 It resolves its sibling release launcher independently of the current directory,
 runs all pending migrations using `Gsmlg.Release.migrate/0`, and propagates failures
 as a nonzero exit status. It starts the repository through `Ecto.Migrator.with_repo/2`,
 not the web application. Supply the same runtime environment listed above.
 
-For the container, override its command with `/app/bin/migrate`:
+For the container, override its command with `/app/bin/gsmlg migrate`:
 
 ```sh
-docker run --rm --env-file production.env phoenix-template /app/bin/migrate
+docker run --rm --env-file production.env phoenix-template /app/bin/gsmlg migrate
 ```
 
 Run migrations

@@ -1,0 +1,37 @@
+#!/bin/sh
+# Public Unix release CLI. Keep Mix's generated launcher unchanged beside it.
+set -eu
+bin_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+export RELEASE_PROG="${RELEASE_PROG:-gsmlg}"
+case "${1:-help}" in
+  help|-h|--help)
+    cat <<'HELP'
+Usage: gsmlg COMMAND [ARGS]
+
+Commands:
+  start                 Start the application in the foreground
+  daemon                Start the application as a daemon
+  migrate               Run all pending database migrations, then exit
+  start_iex, daemon_iex  Start with IEx
+  eval EXPR             Evaluate an expression in a new release VM
+  rpc EXPR              Evaluate an expression on the running node
+  remote                Connect to the running node
+  restart, stop, pid    Control or inspect the running node
+  version               Print the release version
+  help, -h, --help      Show this help
+
+migrate requires the normal production runtime configuration (including
+DATABASE_URL and SECRET_KEY_BASE). It does not start the web application.
+Run it once per deployment, after database readiness and backup checks.
+HELP
+    ;;
+  migrate)
+    shift
+    if [ "$#" -ne 0 ]; then
+      echo 'Usage: gsmlg migrate (no arguments)' >&2
+      exit 2
+    fi
+    exec "$bin_dir/gsmlg.runtime" eval 'Gsmlg.Release.migrate()'
+    ;;
+  *) exec "$bin_dir/gsmlg.runtime" "$@" ;;
+esac

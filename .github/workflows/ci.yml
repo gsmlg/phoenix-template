@@ -107,6 +107,7 @@ jobs:
           MIX_ENV=prod mix compile --warnings-as-errors
           MIX_ENV=prod mix release
           test -x _build/prod/rel/gsmlg/bin/migrate
+          _build/prod/rel/gsmlg/bin/gsmlg --help | grep -q migrate
       - run: git diff --exit-code && git diff --check
   image:
     runs-on: ubuntu-24.04

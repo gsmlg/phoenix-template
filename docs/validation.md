@@ -64,3 +64,14 @@ from an unrelated directory, a path containing spaces, argument rejection, and
 propagation of the release launcher's exit status. These tests use a fake launcher;
 they do not verify real database migrations. Production release assembly and a
 PostgreSQL migration smoke test remain blocked by the dependency-lock issues above.
+
+### Unified release command
+
+The public Unix entrypoint is now `bin/gsmlg {start,daemon,migrate}` with
+help on no arguments, `help`, `-h` and `--help`. The unchanged generated Mix
+launcher is retained as `bin/gsmlg.runtime`; native commands are exec-forwarded.
+Shell tests cover help, argument preservation, migration dispatch, compatibility
+alias and exit status. A temporary dependency-free Mix release, built with the
+exact post-assembly function, successfully executed help, version, and migration
+dispatch in a real release VM. Its migration function was a stub, so this is not
+a PostgreSQL integration test or a successful build of the full template.

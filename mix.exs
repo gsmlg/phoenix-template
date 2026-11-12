@@ -13,7 +13,9 @@ defmodule Gsmlg.MixProject do
       aliases: aliases(),
       deps: deps(),
       compilers: [:phoenix_live_view] ++ Mix.compilers() ++ [:hologram],
-      releases: [gsmlg: [steps: [:assemble, &strip_release_source_maps/1]]],
+      releases: [
+        gsmlg: [steps: [:assemble, &install_release_commands/1, &strip_release_source_maps/1]]
+      ],
       listeners: [Phoenix.CodeReloader]
     ]
   end
@@ -55,6 +57,14 @@ defmodule Gsmlg.MixProject do
 
   defp install_assets(args) do
     File.cd!("assets", fn -> Mix.Task.run("npm.install", ["--frozen" | args]) end)
+  end
+
+  defp install_release_commands(release) do
+    launcher = Path.join([release.path, "bin", "gsmlg"])
+    File.rename!(launcher, launcher <> ".runtime")
+    File.cp!("rel/commands/gsmlg", launcher)
+    File.chmod!(launcher, 0o755)
+    release
   end
 
   defp strip_release_source_maps(release) do
