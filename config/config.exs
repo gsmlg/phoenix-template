@@ -6,7 +6,7 @@ config :gsmlg,
 
 config :gsmlg, GsmlgWeb.Endpoint,
   url: [host: "localhost"],
-  adapter: Bandit.PhoenixAdapter,
+  adapter: Gaoxy.PhoenixAdapter,
   render_errors: [formats: [html: GsmlgWeb.ErrorHTML, json: GsmlgWeb.ErrorJSON], layout: false],
   pubsub_server: Gsmlg.PubSub,
   live_view: [signing_salt: "gsmlg-template-salt"]

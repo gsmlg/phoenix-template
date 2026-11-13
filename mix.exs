@@ -50,7 +50,8 @@ defmodule Gsmlg.MixProject do
       {:gettext, "~> 1.0"},
       {:formata, "~> 0.3.1"},
       {:dns_cluster, "~> 0.3"},
-      {:bandit, "~> 1.12"},
+      {:gaoxy_http, "~> 0.16.4"},
+      {:websock_adapter, "~> 0.16.4", hex: :gaoxy_websock_adapter, override: true},
       {:igniter, "~> 0.8", only: [:dev, :test], runtime: false}
     ]
   end
