@@ -48,7 +48,7 @@ defmodule Gsmlg.MixProject do
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},
       {:gettext, "~> 1.0"},
-      {:jason, "~> 1.2"},
+      {:formata, "~> 0.3.1"},
       {:dns_cluster, "~> 0.3"},
       {:bandit, "~> 1.12"},
       {:igniter, "~> 0.8", only: [:dev, :test], runtime: false}

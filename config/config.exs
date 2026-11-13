@@ -38,7 +38,7 @@ config :logger, :default_formatter,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
 
-config :phoenix, :json_library, Jason
+config :phoenix, :json_library, Formata.JSON
 
 config :phoenix_session_process,
   session_process: Gsmlg.PageState,
