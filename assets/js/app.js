@@ -1,11 +1,11 @@
-import "@duskmoon-dev/elements/el-button/register";
-import "@duskmoon-dev/elements/el-alert/register";
+import { registerAll } from "@duskmoon-dev/elements";
 import { synchronizeTheme } from "./theme.js";
 import "phoenix_html";
 import { Socket } from "phoenix";
 import { LiveSocket } from "phoenix_live_view";
 import * as DuskmoonHooks from "phoenix_duskmoon/hooks";
 
+registerAll();
 synchronizeTheme();
 
 const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content");
