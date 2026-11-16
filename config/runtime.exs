@@ -4,7 +4,7 @@ if System.get_env("PHX_SERVER") in ~w(true 1) do
   config :gsmlg, GsmlgWeb.Endpoint, server: true
 end
 
-config :gsmlg, GsmlgWeb.Endpoint, http: [port: String.to_integer(System.get_env("PORT", "4000"))]
+config :gsmlg, GsmlgWeb.Endpoint, http: [port: String.to_integer(System.get_env("PORT", "4444"))]
 
 if config_env() == :prod do
   database_url =

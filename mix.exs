@@ -24,7 +24,7 @@ defmodule Gsmlg.MixProject do
     [mod: {Gsmlg.Application, []}, extra_applications: [:logger, :runtime_tools]]
   end
 
-  def cli, do: [preferred_envs: [precommit: :test]]
+  def cli, do: [preferred_envs: [precommit: :test, "assets.deploy": :prod]]
 
   defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_), do: ["lib"]
@@ -79,6 +79,7 @@ defmodule Gsmlg.MixProject do
 
   defp aliases do
     [
+      dev: ["holo"],
       setup: ["deps.get", "ecto.setup", "assets.setup", "assets.build"],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],

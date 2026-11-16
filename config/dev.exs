@@ -16,7 +16,7 @@ config :gsmlg, Gsmlg.Repo,
   pool_size: 10
 
 config :gsmlg, GsmlgWeb.Endpoint,
-  http: [ip: {127, 0, 0, 1}, port: 4000],
+  http: [ip: {127, 0, 0, 1}, port: 4444],
   check_origin: false,
   code_reloader: true,
   debug_errors: true,
