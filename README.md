@@ -44,6 +44,8 @@ See [validation status](docs/validation.md) for current evidence and historical 
 Use the versions in `.tool-versions`: Elixir 1.18.4, OTP 28.1, Rust 1.99.1,
 and Node.js 24.22.1. Elixir >= 1.18 and OTP >= 28 are required. Node.js is used
 for lockfile tests and audits; DuskMoon Bundler performs the frontend build.
+The npm manifest, lockfile, and installed dependencies live in the project root;
+frontend source files and tests remain in `assets/`.
 PostgreSQL 17 is the development database.
 
 The current Vize 10.1.6 precompiled Linux NIF requires a newer glibc than the
@@ -109,8 +111,8 @@ elixir scripts/check_dependency_lock.exs
 mix format
 mix precommit
 mix assets.setup
-npm --prefix assets test
-npm --prefix assets audit --omit=dev --audit-level=high
+npm test
+npm audit --omit=dev --audit-level=high
 MIX_ENV=prod mix assets.deploy
 MIX_ENV=prod mix compile --warnings-as-errors
 MIX_ENV=prod mix release

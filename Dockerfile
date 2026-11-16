@@ -21,6 +21,7 @@ RUN mix deps.get --only prod --check-locked && mix deps.compile
 COPY DESIGN.md ./
 COPY lib lib
 COPY priv priv
+COPY package.json package-lock.json ./
 COPY assets assets
 RUN mix assets.setup && mix assets.deploy && mix compile --warnings-as-errors
 COPY config/runtime.exs config/

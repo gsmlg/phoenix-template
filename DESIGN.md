@@ -281,8 +281,8 @@ development with `mix dev`. The current configuration defaults to port 4444,
 with a `PORT` override available. Browser checks must use the actual server address:
 
 ```sh
-npm --prefix assets test
-PLAYWRIGHT_BASE_URL=http://localhost:4444 npm --prefix assets run test:browser
+npm test
+PLAYWRIGHT_BASE_URL=http://localhost:4444 npm run test:browser
 ```
 
 For documentation-only changes, check content, relative links, and

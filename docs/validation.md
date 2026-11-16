@@ -184,7 +184,7 @@ Screenshots and traces go to `_build/browser-tests`, outside the asset watcher.
 ```sh
 PLAYWRIGHT_BASE_URL=http://localhost:4444 \
 PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' \
-npm --prefix assets run test:browser -- --workers=1
+npm run test:browser -- --workers=1
 ```
 
 ## Page architecture (2026-11-15)

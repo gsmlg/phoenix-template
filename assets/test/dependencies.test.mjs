@@ -2,8 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-const manifest = JSON.parse(readFileSync(new URL("../package.json", import.meta.url)));
-const lock = JSON.parse(readFileSync(new URL("../package-lock.json", import.meta.url)));
+const manifest = JSON.parse(readFileSync(new URL("../../package.json", import.meta.url)));
+const lock = JSON.parse(readFileSync(new URL("../../package-lock.json", import.meta.url)));
 
 test("lockfile matches the supported UI cohort", () => {
   assert.deepEqual(lock.packages[""].dependencies, manifest.dependencies);

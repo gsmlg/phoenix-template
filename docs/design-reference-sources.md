@@ -17,7 +17,7 @@ repository was modified, and no private application source is reproduced.
 These source revisions document the research, not the installed package versions.
 The runnable template uses Core 1.21.2, Elements 1.10.2, Components 0.5.5,
 React/React DOM 19.3.1, and PhoenixDuskmoon 10.1.4. The exact resolution belongs
-in `assets/package-lock.json` and `mix.lock`.
+in `package-lock.json` and `mix.lock`.
 
 Components 0.5.5 supports the existing Core cohort. Components 0.6.4 requires
 Core >=1.21.5 and additional peers; this first edition does not upgrade the

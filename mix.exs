@@ -56,10 +56,6 @@ defmodule Gsmlg.MixProject do
     ]
   end
 
-  defp install_assets(args) do
-    File.cd!("assets", fn -> Mix.Task.run("npm.install", ["--frozen" | args]) end)
-  end
-
   defp install_release_commands(release) do
     launcher = Path.join([release.path, "bin", "gsmlg"])
     File.rename!(launcher, launcher <> ".runtime")
@@ -84,7 +80,7 @@ defmodule Gsmlg.MixProject do
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
-      "assets.setup": ["compile", &install_assets/1],
+      "assets.setup": ["compile", "npm.install --frozen"],
       "assets.build": ["compile", "duskmoon_bundler.build gsmlg --tailwind --no-hash --no-minify"],
       "assets.deploy": ["duskmoon_bundler.build gsmlg --tailwind", "phx.digest"],
       precommit: [

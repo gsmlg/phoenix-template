@@ -37,7 +37,7 @@ code comments, identifiers, examples, and developer-facing messages.
   colors to HEEx or CSS.
 - Keep `sunshine` and `moonlight` theme behavior working when changing the
   application shell or assets.
-- Do not commit `assets/node_modules`, `_build`, `deps`, or generated
+- Do not commit `node_modules`, `_build`, `deps`, or generated
   `priv/static` files.
 
 ## Dependencies and generators

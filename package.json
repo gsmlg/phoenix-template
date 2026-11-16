@@ -13,8 +13,8 @@
     "@playwright/test": "1.65.0"
   },
   "scripts": {
-    "test": "node --test test/*.test.mjs",
-    "test:browser": "playwright test",
+    "test": "node --test assets/test/*.test.mjs",
+    "test:browser": "playwright test --config assets/playwright.config.mjs",
     "test:browser:install": "playwright install chromium"
   }
 }
