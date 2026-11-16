@@ -18,6 +18,7 @@ COPY scripts scripts
 RUN elixir scripts/check_dependency_lock.exs
 COPY config/config.exs config/prod.exs config/
 RUN mix deps.get --only prod --check-locked && mix deps.compile
+COPY DESIGN.md ./
 COPY lib lib
 COPY priv priv
 COPY assets assets

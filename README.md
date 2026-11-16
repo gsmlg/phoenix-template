@@ -1,14 +1,43 @@
 # Phoenix Template
 
-A small application starter using Phoenix, LiveView, Ecto, DuskMoon UI,
-DuskMoon Bundler, and DuskMoon Hologram. The application identity remains
+The shared UI design template and runnable reference implementation for our
+applications, built with Phoenix, LiveView, Ecto, DuskMoon UI, DuskMoon Bundler,
+and DuskMoon Hologram. It establishes common visual and interaction conventions
+and provides the design specification other applications use to align their UI.
+
+[DESIGN.md](DESIGN.md) is the authoritative design specification. It defines the
+shared rules, distinguishes them from Phoenix-specific integration details, and
+describes downstream adoption and verification. The runnable examples demonstrate
+those rules; their implementation does not replace the specification.
+
+The repository also serves as an application starter. Its identity remains
 `:gsmlg` / `Gsmlg` / `GsmlgWeb`. Business rules belong in contexts rather than
 in the rendering layer.
 
-**Rebuild in progress:** the current `mix.lock` does not yet match the requested
-dependency upgrades. Do not deploy this checkpoint. See
-[validation status](docs/validation.md) for the exact blockers and checks that
-have actually run.
+## Reference pages
+
+Following Backplane's page architecture, Home uses `dm_page_header`
+with an integrated Hero and scroll-aware navigation, without a sidebar. Introduction and demonstration pages use a primary appbar
+above a contextual left menu and content area. The top bar switches sections;
+the left menu opens topics and related examples.
+
+| Page | Purpose |
+| --- | --- |
+| `/` | Introduces the five DuskMoon repositories and their roles |
+| `/guidelines` | Shared specification, semantic token examples, and exact Markdown download |
+| `/components` | Actual Core, Elements, Phoenix, and isolated React previews |
+| `/use-cases` | Validated settings, filtered records, confirmation, and progress |
+| `/use-cases/session` | Per-session state shared across tabs and refreshes |
+| `/hologram-demo` | Browser-local state and offline actions |
+
+`/ui` redirects to `/use-cases`. The specification download at
+`/guidelines/DESIGN.md` is compiled into the application and includes an
+`X-Design-Spec-SHA256` header. Consumer-source revisions and adaptation boundaries
+are recorded in [design reference sources](docs/design-reference-sources.md).
+
+The first edition remains under validation. The Elements input preview is blocked
+by [upstream issue #90](https://github.com/duskmoon-dev/duskmoon-elements/issues/90).
+See [validation status](docs/validation.md) for current evidence and historical checks.
 
 ## Development
 
@@ -40,13 +69,11 @@ mix local.rebar --force
 Use an unused temporary directory if `/tmp/hex-source` already exists.
 
 ```sh
-docker compose up -d db
 mix setup
-mix holo
+mix dev
 ```
 
-Open http://localhost:4000. Compose starts only a local database on loopback,
-with disposable development credentials. Never expose these credentials publicly.
+Open http://localhost:4444. Start a local PostgreSQL instance before `mix setup`.
 Database settings can be supplied with `PGHOST`, `PGPORT`, `PGUSER`,
 `PGPASSWORD`, and `PGDATABASE` (development only). Tests use `PGDATABASE_TEST`
 (default `gsmlg_test`), followed by `MIX_TEST_PARTITION` when set. A development
@@ -54,19 +81,24 @@ Database settings can be supplied with `PGHOST`, `PGPORT`, `PGUSER`,
 
 ## Rendering and assets
 
-The home page uses LiveView for server-connected interaction. `/hologram-demo`
+The reference pages use LiveView for server-connected interaction. `/hologram-demo`
 uses DuskMoon Hologram for browser-side Elixir. Separate documents prevent the
 two renderers from competing for the same DOM. The Hologram document shares the
 DuskMoon stylesheet but does not load the LiveView JavaScript entry point.
 Counter examples keep transient state; they are not persisted business features.
+Development and production Hologram builds share generated static output. After
+a production build, restart `mix dev` before browser verification so its runtime
+manifest and generated files match again.
 
-Use `mix holo` in development, or `HOLOGRAM_START=1 mix phx.server`. The fork's
+Use `mix dev` in development. It runs `mix holo`, starting Phoenix with Hologram
+enabled (equivalent to `HOLOGRAM_START=1 mix phx.server`). The fork's
 configuration namespace is `:duskmoon_hologram`; public modules remain
 `Hologram.*` and the compiler is `:hologram`. Do not also install upstream
 `:hologram`. Releases explicitly set `HOLOGRAM_ENV=prod`.
 
 DuskMoon Bundler owns the development watcher and `mix assets.build` /
-`mix assets.deploy`. Tailwind and DuskMoon semantic tokens are used throughout.
+`mix assets.deploy`. The deploy alias defaults to `MIX_ENV=prod` and includes
+the isolated React stylesheet entry. Tailwind and DuskMoon semantic tokens are used throughout.
 Keep the sunshine/moonlight themes working. There is no Yarn or esbuild build path.
 
 ## Checks

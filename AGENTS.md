@@ -2,9 +2,16 @@
 
 ## Scope
 
-This repository is a Phoenix application template. Keep the template
-generatable, runnable, and easy to extend. Preserve the `:gsmlg` application
-name unless a task explicitly changes the template identity.
+This repository is the shared UI design template and runnable Phoenix reference
+implementation for our applications. Maintain `DESIGN.md` as the authoritative
+specification for downstream UI alignment. Keep shared design rules distinct
+from framework-specific implementation details.
+
+Keep the application template generatable, runnable, and easy to extend. Preserve
+the `:gsmlg` application name unless a task explicitly changes the template identity.
+
+Use English for all project-authored content, including UI copy, documentation,
+code comments, identifiers, examples, and developer-facing messages.
 
 ## Phoenix and Elixir
 
@@ -19,6 +26,8 @@ name unless a task explicitly changes the template identity.
 
 ## DuskMoon UI and assets
 
+- Follow [DESIGN.md](DESIGN.md) for UI layout, components, themes, interaction,
+  accessibility, and acceptance criteria.
 - Build assets through DuskMoonBundler. Use `mix assets.build` for development
   output and `mix assets.deploy` for digested production output.
 - Keep the profile name `:gsmlg` consistent across `config/config.exs`, the
@@ -51,7 +60,7 @@ mix assets.deploy
 git diff --check
 ```
 
-For web-facing changes, verify the desktop page at `http://localhost:4000/`
+For web-facing changes, verify the desktop page at `http://localhost:4444/`
 and check that the document, CSS, JS, and LiveView requests succeed without
 browser console errors. Do not claim mobile or responsive validation unless it
 was explicitly requested.

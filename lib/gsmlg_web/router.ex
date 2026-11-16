@@ -19,6 +19,12 @@ defmodule GsmlgWeb.Router do
     pipe_through(:browser)
 
     live("/", HomeLive, :index)
-    live("/ui", UILive, :index)
+    live("/guidelines", GuidelinesLive, :index)
+    live("/components", ComponentsLive, :index)
+    live("/use-cases", UseCasesLive, :index)
+    live("/use-cases/session", SessionLive, :index)
+    get("/guidelines/DESIGN.md", DesignController, :download)
+    get("/previews/react", PreviewController, :react)
+    get("/ui", DesignController, :legacy_ui)
   end
 end

@@ -6,12 +6,13 @@ defmodule GsmlgWeb.Hologram.CounterPage do
 
   def template do
     ~HOLO"""
-    <main class="max-w-3xl mx-auto p-8">
-      <a href="/" class="link">Back to LiveView</a>
-      <h1 class="text-3xl font-bold mt-6">Hologram counter</h1>
-      <p>Actions run in your browser. This counter resets on a page reload.</p>
-      <Counter cid="counter" />
-    </main>
+    <div class="design-page">
+      <p class="design-eyebrow">USE CASE / BROWSER-LOCAL STATE</p>
+      <h1 class="design-title">State in your browser.</h1>
+      <p class="design-lead">Actions run in your browser. This counter resets on a page reload.</p>
+      <section class="design-section design-preview"><div class="design-preview-body"><Counter cid="counter" /></div></section>
+      <p class="text-sm text-on-surface-variant">After the runtime loads, these actions also work offline. Use session state when multiple tabs need to share the same value.</p>
+    </div>
     """
   end
 end

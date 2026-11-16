@@ -19,7 +19,7 @@ config :duskmoon_bundler,
   sourcemap: :inline
 
 config :duskmoon_bundler, :gsmlg,
-  entry: "assets/js/app.js",
+  entry: ["assets/js/app.js", "assets/js/react_preview.js"],
   outdir: "priv/static/assets",
   root: "assets",
   asset_url_prefix: "/assets",

@@ -8,7 +8,7 @@ test("desktop document, assets and LiveView work without browser errors", async 
   page.on("response", response => {
     if (["stylesheet", "script"].includes(response.request().resourceType())) assets.push(response);
   });
-  const response = await page.goto("/");
+  const response = await page.goto("/use-cases/session");
   expect(response.ok()).toBeTruthy();
   await expect(page.locator("#counter")).toHaveText("0");
   await expect.poll(() => page.evaluate(() => window.liveSocket?.isConnected())).toBe(true);
@@ -25,17 +25,17 @@ test("desktop document, assets and LiveView work without browser errors", async 
   await expect(page.locator("#counter")).toHaveText("0");
   expect(assets.some(response => response.request().resourceType() === "stylesheet")).toBeTruthy();
   expect(assets.some(response => response.request().resourceType() === "script")).toBeTruthy();
-  expect(assets.filter(response => !response.ok()).map(response => response.url())).toEqual([]);
+  expect(assets.filter(response => !response.ok() && response.status() !== 304).map(response => response.url())).toEqual([]);
   expect(errors).toEqual([]);
 });
 
 test("session counter is shared across tabs but isolated across browser contexts", async ({ page, context, browser }) => {
-  await page.goto("/");
+  await page.goto("/use-cases/session");
   await expect.poll(() => page.evaluate(() => window.liveSocket?.isConnected())).toBe(true);
   await page.locator("#increment").click();
   await expect(page.locator("#counter")).toHaveText("1");
   const tab = await context.newPage();
-  await tab.goto("/");
+  await tab.goto("/use-cases/session");
   await expect(tab.locator("#counter")).toHaveText("1");
   await expect.poll(() => tab.evaluate(() => window.liveSocket?.isConnected())).toBe(true);
   await tab.locator("#increment").click();
@@ -44,7 +44,7 @@ test("session counter is shared across tabs but isolated across browser contexts
   const isolated = await browser.newContext();
   try {
     const other = await isolated.newPage();
-    await other.goto(new URL("/", page.url()).href);
+    await other.goto(new URL("/use-cases/session", page.url()).href);
     await expect(other.locator("#counter")).toHaveText("0");
   } finally { await isolated.close(); }
 });
@@ -56,7 +56,7 @@ test("Hologram runtime executes client-side actions and inherits theme", async (
   page.on("response", response => {
     if (["stylesheet", "script"].includes(response.request().resourceType())) assets.push(response);
   });
-  await page.goto("/");
+  await page.goto("/use-cases/session");
   await expect.poll(() => page.evaluate(() => window.liveSocket?.isConnected())).toBe(true);
   // ThemeSwitcher button selectors require verification against the installed UI package.
   await page.evaluate(() => document.documentElement.setAttribute("data-theme", "moonlight"));
@@ -76,17 +76,20 @@ test("Hologram runtime executes client-side actions and inherits theme", async (
     await page.locator("#hologram-reset").click();
     await expect(page.locator("#hologram-count")).toHaveText("0");
   } finally { await context.setOffline(false); }
-  expect(assets.filter(response => !response.ok()).map(response => response.url())).toEqual([]);
+  expect(assets.filter(response => !response.ok() && response.status() !== 304).map(response => response.url())).toEqual([]);
   expect(errors).toEqual([]);
 });
 
 test("LiveView reconnects without losing session state", async ({ page, context }) => {
   test.setTimeout(90000);
-  await page.goto("/");
+  await page.goto("/use-cases/session");
   await expect.poll(() => page.evaluate(() => window.liveSocket?.isConnected())).toBe(true);
   await page.locator("#increment").click();
   await expect(page.locator("#counter")).toHaveText("1");
   await context.setOffline(true);
+  // Chromium offline emulation does not terminate an existing WebSocket.
+  // Close that transport to exercise the client's automatic reconnection path.
+  await page.evaluate(() => window.liveSocket.getSocket().conn.close());
   try {
     await expect.poll(() => page.evaluate(() => window.liveSocket?.isConnected()), { timeout: 45000 }).toBe(false);
   } finally { await context.setOffline(false); }
@@ -97,7 +100,7 @@ test("LiveView reconnects without losing session state", async ({ page, context 
 });
 
 test("navigation between renderers and browser history preserve LiveView state", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/use-cases/session");
   await expect.poll(() => page.evaluate(() => window.liveSocket?.isConnected())).toBe(true);
   await page.locator("#increment").click();
   await expect(page.locator("#counter")).toHaveText("1");
@@ -133,7 +136,7 @@ test("LiveView falls back to longpoll when WebSocket transport is closed", async
   page.on("response", response => {
     if (new URL(response.url()).pathname === "/live/longpoll") polling.push(response);
   });
-  await page.goto("/");
+  await page.goto("/use-cases/session");
   await expect.poll(() => page.evaluate(() => window.liveSocket?.isConnected()), { timeout: 20000 }).toBe(true);
   await expect.poll(() => polling.some(response => response.ok()), { timeout: 20000 }).toBe(true);
   await page.locator("#increment").click();

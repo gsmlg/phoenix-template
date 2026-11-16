@@ -1,129 +1,123 @@
 defmodule GsmlgWeb.HomeLive do
   use GsmlgWeb, :live_view
-  alias Gsmlg.PageState
-  alias Phoenix.SessionProcess
+  alias Gsmlg.DesignCatalog
 
-  @impl true
-  def mount(_params, %{"session_id" => session_id}, socket) do
-    socket =
-      assign(socket,
-        page_title: "Starter",
-        count: 0,
-        session_id: session_id,
-        session_pid: nil,
-        session_monitor: nil,
-        session_status: :ready
-      )
-
-    {:ok, load_session(socket)}
-  end
-
-  @impl true
-  def handle_event(action, _params, socket) when action in ["increment", "reset"] do
-    socket = load_session(socket)
-
-    if socket.assigns.session_status == :ready do
-      case PageState.update_counter(socket.assigns.session_id, action) do
-        {:ok, count} -> {:noreply, assign(socket, count: count)}
-        {:error, _reason} -> {:noreply, assign(socket, session_status: :unavailable)}
-      end
-    else
-      {:noreply, socket}
-    end
+  def mount(_params, _session, socket) do
+    {:ok, assign(socket, page_title: "Overview", repositories: DesignCatalog.repositories())}
   end
 
   def handle_event("theme_changed", _params, socket), do: {:noreply, socket}
 
-  @impl true
-  def handle_info({:counter_changed, %{count: count}}, socket) do
-    {:noreply, assign(socket, count: count)}
-  end
-
-  def handle_info(
-        {:DOWN, ref, :process, _pid, _reason},
-        %{assigns: %{session_monitor: ref}} = socket
-      ) do
-    # An idle page must not immediately recreate the process that just expired.
-    {:noreply,
-     assign(socket,
-       count: 0,
-       session_pid: nil,
-       session_monitor: nil,
-       session_status: :expired
-     )}
-  end
-
-  defp load_session(socket) do
-    session_id = socket.assigns.session_id
-
-    with {:ok, pid} <- PageState.ensure_session(session_id),
-         {:ok, count} <- PageState.read_counter(session_id) do
-      socket = assign(socket, count: count, session_status: :ready)
-
-      if connected?(socket) and socket.assigns.session_pid != pid do
-        if socket.assigns.session_monitor,
-          do: Process.demonitor(socket.assigns.session_monitor, [:flush])
-
-        ref = Process.monitor(pid)
-
-        case SessionProcess.subscribe(session_id, & &1.counter, :counter_changed, self()) do
-          {:ok, _subscription} ->
-            assign(socket, session_pid: pid, session_monitor: ref)
-
-          {:error, _reason} ->
-            Process.demonitor(ref, [:flush])
-            assign(socket, session_status: :unavailable)
-        end
-      else
-        socket
-      end
-    else
-      {:error, _reason} -> assign(socket, session_status: :unavailable)
-    end
-  end
-
-  @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash}>
-      <section class="mx-auto max-w-5xl px-6 py-16">
-        <p class="text-sm font-semibold text-primary">PHOENIX APPLICATION STARTER</p>
-        <h1 class="mt-4 text-4xl font-bold tracking-tight">Build your next workflow.</h1>
-        <p class="mt-6 max-w-2xl text-lg text-on-surface-variant">
-          LiveView for server interaction, Hologram for browser-side Elixir,
-          and DuskMoon for a consistent interface. Add your domain here.
-        </p>
-        <div class="mt-10 grid gap-6 md:grid-cols-2">
-          <section aria-labelledby="interaction-title" class="rounded-xl border border-outline-variant bg-surface-container p-6">
-            <h2 id="interaction-title" class="text-xl font-semibold">Try session-backed state</h2>
-            <p class="mt-3 text-on-surface-variant">
-              This counter is shared across this browser session's refreshes and tabs.
-              It expires after 30 idle minutes and is not stored in the database.
-            </p>
-            <p id="counter" aria-live="polite" class="my-6 text-4xl font-semibold">{@count}</p>
-            <p :if={@session_status == :expired} id="session-expired" role="status" class="mb-4 text-on-surface-variant">
-              Page state expired. Your next interaction starts a fresh session.
-            </p>
-            <p :if={@session_status == :unavailable} id="session-unavailable" role="alert" class="mb-4 text-error">
-              Page state is temporarily unavailable. Try again shortly.
-            </p>
-            <div class="flex gap-3">
-              <button id="increment" type="button" phx-click="increment" disabled={!connected?(@socket)} class="btn btn-primary">Increment</button>
-              <button id="reset" type="button" phx-click="reset" disabled={!connected?(@socket)} class="btn btn-outline">Reset</button>
-            </div>
-          </section>
-          <section aria-labelledby="next-title" class="rounded-xl border border-outline-variant bg-surface-container p-6">
-            <h2 id="next-title" class="text-xl font-semibold">Make it yours</h2>
-            <ol class="mt-4 list-inside list-decimal space-y-3 text-on-surface-variant">
-              <li>Put business rules in contexts under Gsmlg.</li>
-              <li>Keep durable data in Ecto and transient page state in session processes.</li>
-              <li>Run the checks before building a release.</li>
-            </ol>
-            <a id="hologram-demo-link" class="btn btn-primary mt-6" href="/hologram-demo">Try browser-side Elixir with Hologram</a>
-          </section>
-        </div>
-      </section>
-    </Layouts.app>
+    <Layouts.home flash={@flash}>
+      <:hero>
+        <section class="design-home-hero" aria-labelledby="overview-title">
+          <span class="design-home-emblem" aria-hidden="true">d.</span>
+          <p class="design-home-eyebrow">DuskMoon · A shared foundation for our applications</p>
+          <h1 id="overview-title">One design language.<br />Every interface.</h1>
+          <p class="design-home-lead">
+            Explore working components, adopt shared guidelines, and bring consistent patterns into your next application.
+          </p>
+          <div class="design-home-actions">
+            <.link navigate={~p"/components"} class="btn btn-primary">Explore components →</.link>
+            <.link navigate={~p"/guidelines"} class="design-home-source">Read the guidelines</.link>
+          </div>
+          <nav class="design-home-layers" aria-label="DuskMoon repository layers">
+            <a :for={repo <- @repositories} href={DesignCatalog.repository_url(repo)}>
+              {repo.name} <span aria-hidden="true">↗</span>
+            </a>
+          </nav>
+        </section>
+      </:hero>
+      <div class="design-page design-home-content">
+        <section class="design-section" aria-labelledby="start-title">
+          <div class="design-section-heading">
+            <h2 id="start-title">Find your starting point</h2><span class="design-small-label">FROM PRINCIPLE TO PRACTICE</span>
+          </div>
+          <div class="design-grid">
+            <.link navigate={~p"/guidelines"} class="design-entry-card">
+              <span class="design-small-label">01 / ALIGN</span><h3>
+                Start with the foundations <span aria-hidden="true">↗</span>
+              </h3>
+              <p>
+                Colors, type, spacing, interaction, and accessibility. A specification your application can adopt.
+              </p>
+            </.link>
+            <.link navigate={~p"/components"} class="design-entry-card">
+              <span class="design-small-label">02 / COMPOSE</span><h3>
+                Meet the building blocks <span aria-hidden="true">↗</span>
+              </h3>
+              <p>
+                Working previews with usage examples. Compare Core, custom elements, React, and Phoenix.
+              </p>
+            </.link>
+            <.link navigate={~p"/use-cases"} class="design-entry-card">
+              <span class="design-small-label">03 / APPLY</span><h3>
+                See patterns in context <span aria-hidden="true">↗</span>
+              </h3>
+              <p>
+                Settings, filtering, confirmation, and status. Adapted from real applications using synthetic data.
+              </p>
+            </.link>
+          </div>
+        </section>
+
+        <section id="repositories" class="design-section" aria-labelledby="repositories-title">
+          <div class="design-section-heading">
+            <div>
+              <p class="design-eyebrow">THE ECOSYSTEM</p><h2 id="repositories-title">
+                Five repositories. Clear responsibilities.
+              </h2>
+            </div><a href="https://github.com/duskmoon-dev" class="design-text-link">View organization ↗</a>
+          </div>
+          <div class="design-repo-list">
+            <article :for={repo <- @repositories} id={"repository-#{repo.id}"} class="design-repo-row">
+              <span class="design-stack-index">{repo.number}</span>
+              <div>
+                <h3>
+                  <a href={DesignCatalog.repository_url(repo)}>duskmoon-dev/{repo.repository}</a>
+                </h3><code class="design-package">{repo.package}</code>
+              </div>
+              <p>{repo.description}</p>
+              <a href={repo.demo} class="design-text-link">Explore
+              <span class="sr-only">{repo.name}</span>
+              →</a>
+            </article>
+          </div>
+        </section>
+
+        <section class="design-section grid gap-8 lg:grid-cols-2" aria-labelledby="adoption-title">
+          <div>
+            <p class="design-eyebrow">BUILT TO BE SHARED</p><h2
+              id="adoption-title"
+              class="text-2xl font-semibold tracking-tight"
+            >
+              A reference, not a screenshot.
+            </h2><p class="design-lead">
+              Adopt the design rules and verify the behavior in your own application. Frameworks may differ; visual roles and interaction expectations should remain consistent.
+            </p><.link navigate={~p"/guidelines"} class="design-text-link mt-5 inline-block">Get the specification →</.link>
+          </div>
+          <ol class="space-y-5 rounded-xl border border-outline-variant p-6">
+            <li>
+              <span class="design-small-label">01 / IDENTIFY</span><p class="mt-1 text-sm">
+                Record the specification revision and your component versions.
+              </p>
+            </li>
+            <li>
+              <span class="design-small-label">02 / MAP</span><p class="mt-1 text-sm">
+                Map semantic tokens, components, themes, and interaction states.
+              </p>
+            </li>
+            <li>
+              <span class="design-small-label">03 / VERIFY</span><p class="mt-1 text-sm">
+                Check real workflows, both themes, keyboard use, and recovery states.
+              </p>
+            </li>
+          </ol>
+        </section>
+      </div>
+    </Layouts.home>
     """
   end
 end

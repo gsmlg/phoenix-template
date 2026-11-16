@@ -1,0 +1,7 @@
+/* TODO(upstream): duskmoon-dev/duskmoon-bundler#27
+ * WORKAROUND(upstream): use a CSS entry while dev vendor optimization treats
+ * package CSS imports as JavaScript. This is the aggregate package artifact
+ * exported as ./styles.css. Remove the relative path and entry split after a
+ * fixed Bundler release supports the public CSS import in both environments.
+ */
+@import "../node_modules/@duskmoon-dev/components/dist/styles.css";
