@@ -76,7 +76,6 @@ defmodule GsmlgWeb.Layouts do
         </:menu>
         <:user_profile>
           <a href="https://github.com/gsmlg/phoenix-template" class="appbar-action design-source-link">Source ↗</a>
-          <.dm_theme_switcher />
         </:user_profile>
       </.dm_appbar>
       <div class="design-body">
@@ -85,18 +84,26 @@ defmodule GsmlgWeb.Layouts do
           id="design-left-menu"
           class="design-left-menu"
           nav_label={section_title(@active) <> " navigation"}
+          collapsible
+          storage_key="gsmlg.navigation.collapsed"
         >
           <:title>{section_title(@active)}</:title>
           <:menu>
             <ul>
-              <li :for={{id, label, path} <- @section_links}>
-                <.link
-                  href={path}
-                  aria-current={if((@page || @active) == id, do: "page")}
-                  class={(@page || @active) == id && "nested-menu-active"}
-                >
-                  {label}
-                </.link>
+              <li :for={{id, label, path, icon} <- @section_links}>
+                <.dm_tooltip :let={attrs} id={"design-menu-#{id}"} content={label} position="right">
+                  <.link
+                    {attrs}
+                    navigate={if id != "hologram", do: path}
+                    href={if id == "hologram", do: path}
+                    aria-label={label}
+                    aria-current={if((@page || @active) == id, do: "page")}
+                    class={(@page || @active) == id && "nested-menu-active"}
+                  >
+                    <.dm_mdi name={icon} class="size-5 shrink-0" />
+                    <span data-left-menu-label>{label}</span>
+                  </.link>
+                </.dm_tooltip>
               </li>
             </ul>
           </:menu>
@@ -129,37 +136,40 @@ defmodule GsmlgWeb.Layouts do
     ]
   end
 
-  defp section_links("guidelines") do
+  @doc false
+  def section_links("guidelines") do
     [
-      {"guidelines", "Introduction", ~p"/guidelines"},
-      {"tokens", "Semantic colors", ~p"/guidelines#token-examples"},
-      {"specification", "Design specification", ~p"/guidelines#design-specification"}
+      {"guidelines", "Introduction", ~p"/guidelines", "information-outline"},
+      {"tokens", "Semantic colors", ~p"/guidelines/colors", "palette-outline"},
+      {"specification", "Design specification", ~p"/guidelines/specification",
+       "file-document-outline"}
     ]
   end
 
-  defp section_links("components") do
+  def section_links("components") do
     [
-      {"components", "Introduction", ~p"/components"},
-      {"core", "Core CSS", ~p"/components#core"},
-      {"elements", "Web Components", ~p"/components#elements"},
-      {"phoenix", "Phoenix", ~p"/components#phoenix"},
-      {"react", "React", ~p"/components#react"}
+      {"components", "Introduction", ~p"/components", "information-outline"},
+      {"core", "Core CSS", ~p"/components/core", "palette-outline"},
+      {"elements", "Web Components", ~p"/components/elements", "widgets-outline"},
+      {"phoenix", "Phoenix", ~p"/components/phoenix", "fire"},
+      {"react", "React", ~p"/components/react", "react"}
     ]
   end
 
-  defp section_links("use-cases") do
+  def section_links("use-cases") do
     [
-      {"use-cases", "Introduction", ~p"/use-cases"},
-      {"settings", "Workspace settings", ~p"/use-cases#workspace-settings"},
-      {"records", "Record browser", ~p"/use-cases#record-browser"},
-      {"confirmation", "Confirmation", ~p"/use-cases#confirmation"},
-      {"progress", "Progress", ~p"/use-cases#progress"},
-      {"session", "Session state", ~p"/use-cases/session"},
-      {"hologram", "Browser-local state", ~p"/hologram-demo"}
+      {"use-cases", "Introduction", ~p"/use-cases", "information-outline"},
+      {"settings", "Workspace settings", ~p"/use-cases/workspace-settings", "cog-outline"},
+      {"settings-page", "Settings layout", ~p"/use-cases/settings", "cog"},
+      {"records", "Record browser", ~p"/use-cases/records", "table"},
+      {"confirmation", "Confirmation", ~p"/use-cases/confirmation", "shield-check-outline"},
+      {"progress", "Progress", ~p"/use-cases/progress", "progress-check"},
+      {"session", "Session state", ~p"/use-cases/session", "account-group-outline"},
+      {"hologram", "Browser-local state", ~p"/hologram-demo", "web"}
     ]
   end
 
-  defp section_links(_), do: []
+  def section_links(_), do: []
 
   defp section_title(active) do
     Enum.find_value(navigation(), "Overview", fn {id, title, _} ->

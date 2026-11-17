@@ -5,25 +5,28 @@ import { createHash } from "node:crypto";
 const connected = page => expect.poll(() => page.evaluate(() => window.liveSocket?.isConnected())).toBe(true);
 const action = (page, id) => page.locator(`#${id}`).getByRole("button");
 
-function captureErrors(page) {
+function captureErrors(page, expectedRedirects = []) {
   const errors = [];
   page.on("pageerror", error => errors.push(error.message));
   page.on("console", message => { if (message.type() === "error") errors.push(message.text()); });
   page.on("response", response => {
+    const url = new URL(response.url());
+    const expectedRedirect = response.status() === 302 && expectedRedirects.includes(`${url.pathname}${url.search}`);
     if (["document", "stylesheet", "script"].includes(response.request().resourceType()) &&
-        !response.ok() && response.status() !== 304) errors.push(`${response.status()} ${response.url()}`);
+        !response.ok() && response.status() !== 304 && !expectedRedirect) errors.push(`${response.status()} ${response.url()}`);
   });
   return errors;
 }
 
 async function selectTheme(page, theme) {
-  const switcher = page.locator('[phx-hook="ThemeSwitcher"]');
-  await switcher.locator("summary").click();
-  const id = await switcher.locator(`input[value="${theme}"]`).getAttribute("id");
-  await switcher.locator(`label[for="${id}"]`).click();
+  const settings = await page.context().newPage();
+  await settings.goto("/use-cases/settings/appearance");
+  await connected(settings);
+  await settings.locator(`#appearance-preference button[value="${theme}"]`).click();
+  await expect(settings.locator("html")).toHaveAttribute("data-theme", theme);
   await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
-  await page.locator("h1").click();
-  await connected(page);
+  await settings.close();
+  if (await page.locator("[data-phx-session]").count()) await connected(page);
 }
 
 test("reference navigation, ecosystem roles and canonical specification export", async ({ page, request }) => {
@@ -130,7 +133,7 @@ for (const theme of ["sunshine", "moonlight"]) {
     const errors = captureErrors(page);
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.addInitScript(theme => localStorage.setItem("theme", theme), theme);
-    for (const path of ["/", "/guidelines", "/components", "/use-cases", "/use-cases/session", "/hologram-demo"]) {
+    for (const path of ["/", "/guidelines", "/components", "/use-cases", "/use-cases/settings", "/use-cases/session", "/hologram-demo"]) {
       await page.goto(path);
       if (path !== "/hologram-demo") await connected(page);
       await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
@@ -153,10 +156,15 @@ for (const theme of ["sunshine", "moonlight"]) {
         await expect(menu).toBeVisible();
         await expect.poll(() => menu.evaluate(el => {
           const expected = getComputedStyle(el).color;
-          return [...el.querySelectorAll('a:not([aria-current="page"])')]
+          return [...el.querySelectorAll('a:not([aria-current="page"]), [data-left-menu-toggle]')]
             .every(link => getComputedStyle(link).color === expected);
         })).toBe(true);
         const barBox = await appbar.boundingBox();
+        const brandBox = await appbar.locator(".appbar-brand").boundingBox();
+        const navBox = await appbar.locator("nav[aria-label='Main navigation']").boundingBox();
+        expect(navBox.x).toBeGreaterThanOrEqual(brandBox.x + brandBox.width);
+        expect(navBox.x - brandBox.x - brandBox.width).toBeLessThan(80);
+        await expect(appbar.locator('[phx-hook="ThemeSwitcher"]')).toHaveCount(0);
         const menuBox = await menu.boundingBox();
         const mainBox = await page.locator("main").boundingBox();
         expect(menuBox.y).toBeGreaterThanOrEqual(barBox.y + barBox.height - 1);
@@ -198,12 +206,191 @@ test("Elements switch supports pointer and keyboard changes and retains local st
   expect(errors).toEqual([]);
 });
 
+for (const theme of ["sunshine", "moonlight"]) {
+  test(`sidebar collapse preserves navigation, drafts and renderer state in ${theme}`, async ({ page }, testInfo) => {
+    const errors = captureErrors(page);
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.addInitScript(theme => localStorage.setItem("theme", theme), theme);
+    await page.context().addCookies([{ name: "gsmlg_theme", value: theme, url: "http://localhost:4444" }]);
+    await page.goto("/use-cases");
+    await connected(page);
+    const menu = page.locator("#design-left-menu");
+    const expandedWidth = await menu.evaluate(el => el.getBoundingClientRect().width);
+    const expandedContentX = await page.locator("main").evaluate(el => el.getBoundingClientRect().x);
+    const draft = page.getByRole("textbox", { name: "Workspace name", exact: true });
+    await draft.fill("Sidebar draft");
+    const collapse = menu.getByRole("button", { name: "Collapse navigation", exact: true });
+    await collapse.focus();
+    await page.keyboard.press("Enter");
+    await expect(menu).toHaveAttribute("data-collapsed", "true");
+    await expect(menu.getByRole("button", { name: "Expand navigation" })).toHaveAttribute("aria-expanded", "false");
+    await expect(draft).toHaveValue("Sidebar draft");
+    await expect.poll(() => menu.evaluate(el => el.getBoundingClientRect().width)).toBeLessThan(expandedWidth - 100);
+    await expect.poll(() => page.locator("main").evaluate(el => el.getBoundingClientRect().x)).toBeLessThan(expandedContentX - 100);
+    const sessionLink = menu.getByRole("link", { name: "Session state", exact: true });
+    await sessionLink.focus();
+    await expect(page.getByRole("tooltip", { name: "Session state", exact: true })).toBeVisible();
+    await page.screenshot({ path: testInfo.outputPath(`sidebar-collapsed-${theme}.png`) });
+    await sessionLink.click();
+    await connected(page);
+    await expect(menu).toHaveAttribute("data-collapsed", "true");
+    await expect(menu.locator("a[aria-current='page']")).toHaveAccessibleName("Session state");
+    await page.reload();
+    await connected(page);
+    await expect(menu).toHaveAttribute("data-collapsed", "true");
+    await menu.getByRole("link", { name: "Browser-local state", exact: true }).click();
+    await expect(page).toHaveURL(/\/hologram-demo$/);
+    await expect(menu).toHaveAttribute("data-collapsed", "true");
+    await menu.getByRole("link", { name: "Session state", exact: true }).focus();
+    await expect(page.getByRole("tooltip", { name: "Session state", exact: true })).toBeVisible();
+    await page.locator("#hologram-increment").click();
+    await expect(page.locator("#hologram-count")).toHaveText("1");
+    await menu.getByRole("button", { name: "Expand navigation" }).click();
+    await expect(menu).toHaveAttribute("data-collapsed", "false");
+    await expect(page.locator("#hologram-count")).toHaveText("1");
+    await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+    await menu.getByRole("link", { name: "Introduction", exact: true }).click();
+    await connected(page);
+    await expect(menu).toHaveAttribute("data-collapsed", "false");
+    await expect.poll(() => menu.evaluate(el => el.getBoundingClientRect().width)).toBe(expandedWidth);
+    expect(errors).toEqual([]);
+  });
+}
+
+for (const theme of ["sunshine", "moonlight"]) {
+  test(`object settings support section navigation, save and cancel in ${theme}`, async ({ page }, testInfo) => {
+    const errors = captureErrors(page);
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.addInitScript(theme => localStorage.setItem("theme", theme), theme);
+    await page.goto("/use-cases");
+    await connected(page);
+    await page.locator("#design-left-menu").getByRole("link", { name: "Settings layout", exact: true }).click();
+    await connected(page);
+    const sections = page.getByRole("navigation", { name: "Workspace settings sections" });
+    const name = page.getByRole("textbox", { name: "Display name", exact: true });
+    await name.fill("Draft workspace");
+    await page.getByRole("textbox", { name: "Description", exact: true }).fill("A shared profile.");
+    await sections.getByRole("link", { name: "GitHub integration", exact: true }).click();
+    await expect(page).toHaveURL(/\/use-cases\/settings\/github$/);
+    await page.getByRole("textbox", { name: "Repository", exact: true }).fill("invalid");
+    await page.getByRole("button", { name: "Save integration", exact: true }).click();
+    await expect(page.locator("#settings-repository-errors")).toContainText("Use owner/repository");
+    await sections.getByRole("link", { name: "General", exact: true }).click();
+    await expect(name).toHaveValue("Draft workspace");
+    await name.fill(" ");
+    await page.getByRole("button", { name: "Save changes", exact: true }).click();
+    await expect(page.locator("#settings-display-name-errors")).toBeVisible();
+    await name.fill("  Atlas workspace  ");
+    await page.getByRole("button", { name: "Save changes", exact: true }).click();
+    await expect(page.locator("#settings-workspace-name")).toHaveText("Atlas workspace");
+    await expect(name).toHaveValue("Atlas workspace");
+    await name.fill("Unsaved workspace");
+    await page.getByRole("button", { name: "Cancel changes", exact: true }).click();
+    await expect(name).toHaveValue("Atlas workspace");
+    await expect(page.locator("#settings-feedback")).toHaveCount(0);
+    await expect(sections.getByRole("link", { name: "General", exact: true })).toHaveAttribute("aria-current", "page");
+    const navBox = await sections.boundingBox();
+    const panelBox = await page.locator(".design-settings-panel").boundingBox();
+    expect(panelBox.x).toBeGreaterThan(navBox.x + navBox.width);
+    await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    await page.screenshot({ path: testInfo.outputPath(`settings-${theme}.png`), fullPage: true });
+    await page.goBack();
+    await expect(page).toHaveURL(/\/use-cases\/settings\/github$/);
+    await expect(page.locator("#settings-section-title")).toHaveText("GitHub integration");
+    await expect(page.getByRole("textbox", { name: "Repository", exact: true })).toHaveValue("invalid");
+    await page.goForward();
+    await expect(page).toHaveURL(/\/use-cases\/settings$/);
+    await expect(name).toHaveValue("Atlas workspace");
+    expect(errors).toEqual([]);
+  });
+}
+
+test("Appearance follows the system, persists explicit modes and shares the home selector", async ({ page }, testInfo) => {
+  const errors = captureErrors(page);
+  await page.emulateMedia({ colorScheme: "dark" });
+  await page.goto("/use-cases/settings/appearance");
+  await connected(page);
+  const modes = page.getByRole("group", { name: "Color mode", exact: true });
+  await expect(modes.getByRole("button", { name: "Auto", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "moonlight");
+  await page.emulateMedia({ colorScheme: "light" });
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "sunshine");
+  await modes.getByRole("button", { name: "Dark", exact: true }).click();
+  await page.reload();
+  await connected(page);
+  await expect(modes.getByRole("button", { name: "Dark", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "moonlight");
+  await modes.getByRole("button", { name: "Auto", exact: true }).focus();
+  await page.keyboard.press("Enter");
+  await expect.poll(() => page.evaluate(() => localStorage.getItem("theme"))).toBe("default");
+  await page.goto("/hologram-demo");
+  await expect(page.locator("#hologram-increment")).toBeEnabled();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "sunshine");
+  await page.emulateMedia({ colorScheme: "dark" });
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "moonlight");
+  await page.locator("#hologram-increment").click();
+  await expect(page.locator("#hologram-count")).toHaveText("1");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "moonlight");
+  await expect.poll(() => page.evaluate(() => localStorage.getItem("theme"))).toBe("default");
+  await selectTheme(page, "sunshine");
+  await page.locator("#hologram-increment").click();
+  await expect(page.locator("#hologram-count")).toHaveText("2");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "sunshine");
+  await page.goto("/");
+  await connected(page);
+  const switcher = page.locator('#home-page-header [phx-hook="ThemeSwitcher"]:visible');
+  await selectTheme(page, "moonlight");
+  await expect(switcher.locator('input[value="moonlight"]')).toBeChecked();
+  await selectTheme(page, "sunshine");
+  await expect(switcher.locator('input[value="sunshine"]')).toBeChecked();
+  await switcher.locator("summary").click();
+  const id = await switcher.locator('input[value="moonlight"]').getAttribute("id");
+  await switcher.locator(`label[for="${id}"]`).click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "moonlight");
+  await page.goto("/use-cases/settings/appearance");
+  await connected(page);
+  await expect(modes.getByRole("button", { name: "Dark", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator("#design-appbar [phx-hook='ThemeSwitcher']")).toHaveCount(0);
+  await page.locator(".design-settings-panel").screenshot({ path: testInfo.outputPath("appearance-modes.png") });
+  expect(errors).toEqual([]);
+});
+
+test("sidebar toggles when its preference storage is unavailable", async ({ page }) => {
+  const errors = captureErrors(page);
+  await page.addInitScript(() => {
+    // Isolate sidebar persistence from LiveSocket's transport storage.
+    const getItem = Storage.prototype.getItem;
+    const setItem = Storage.prototype.setItem;
+    Storage.prototype.getItem = function (key) {
+      if (key === "gsmlg.navigation.collapsed") throw new Error("Preference storage unavailable");
+      return getItem.call(this, key);
+    };
+    Storage.prototype.setItem = function (key, value) {
+      if (key === "gsmlg.navigation.collapsed") throw new Error("Preference storage unavailable");
+      return setItem.call(this, key, value);
+    };
+  });
+  for (const path of ["/components", "/hologram-demo"]) {
+    await page.goto(path);
+    if (path !== "/hologram-demo") await connected(page);
+    const menu = page.locator("#design-left-menu");
+    await menu.getByRole("button", { name: "Collapse navigation" }).click();
+    await expect(menu).toHaveAttribute("data-collapsed", "true");
+    await menu.getByRole("button", { name: "Expand navigation" }).click();
+    await expect(menu).toHaveAttribute("data-collapsed", "false");
+  }
+  expect(errors).toEqual([]);
+});
+
 test("contextual left menu reaches component topics and state demonstrations", async ({ page }) => {
   const errors = captureErrors(page);
   await page.goto("/components");
   await connected(page);
   await page.locator("#design-left-menu").getByRole("link", { name: "React", exact: true }).click();
-  await expect(page).toHaveURL(/\/components#react$/);
+  await expect(page).toHaveURL(/\/components\/react$/);
+  await connected(page);
+  await expect(page.locator("#design-left-menu a[aria-current='page']")).toHaveAccessibleName("React");
+  await expect(page.locator("section#core, section#elements, section#phoenix")).toHaveCount(0);
   await expect(page.locator("#react-title")).toBeInViewport();
   await expect.poll(() => page.locator("#design-appbar").evaluate(el => Math.round(el.getBoundingClientRect().top))).toBe(0);
   await expect.poll(() => page.locator("#design-left-menu").evaluate(el => Math.round(el.getBoundingClientRect().top))).toBe(64);
@@ -215,6 +402,94 @@ test("contextual left menu reaches component topics and state demonstrations", a
   await page.locator("#design-left-menu").getByRole("link", { name: "Browser-local state", exact: true }).click();
   await expect(page).toHaveURL(/\/hologram-demo$/);
   await expect(page.locator("#design-left-menu a[aria-current='page']")).toHaveText("Browser-local state");
+  await page.locator("#design-left-menu").getByRole("link", { name: "Record browser", exact: true }).click();
+  await expect(page).toHaveURL(/\/use-cases\/records$/);
+  await connected(page);
+  await expect(page.locator("#design-left-menu a[aria-current='page']")).toHaveText("Record browser");
+  await expect(page.locator("section#workspace-settings, section#confirmation, section#progress")).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+for (const [section, topics] of [
+  ["guidelines", [
+    ["Semantic colors", "/guidelines/colors", "#token-examples", "#design-specification"],
+    ["Design specification", "/guidelines/specification", "#design-specification", "#token-examples"]
+  ]],
+  ["components", [
+    ["Core CSS", "/components/core", "section#core", "section#elements, section#phoenix, section#react"],
+    ["Web Components", "/components/elements", "section#elements", "section#core, section#phoenix, section#react"],
+    ["Phoenix", "/components/phoenix", "section#phoenix", "section#core, section#elements, section#react"],
+    ["React", "/components/react", "section#react", "section#core, section#elements, section#phoenix"]
+  ]],
+  ["use-cases", [
+    ["Workspace settings", "/use-cases/workspace-settings", "section#workspace-settings", "section#record-browser, section#confirmation, section#progress"],
+    ["Record browser", "/use-cases/records", "section#record-browser", "section#workspace-settings, section#confirmation, section#progress"],
+    ["Confirmation", "/use-cases/confirmation", "section#confirmation", "section#workspace-settings, section#record-browser, section#progress"],
+    ["Progress", "/use-cases/progress", "section#progress", "section#workspace-settings, section#record-browser, section#confirmation"]
+  ]]
+]) {
+  test(`${section} sidebar topics support path routes, reload and history`, async ({ page }) => {
+    const errors = captureErrors(page);
+    await page.goto(`/${section}`);
+    await connected(page);
+    const menu = page.locator("#design-left-menu");
+    const destinations = await menu.locator("a").evaluateAll(links => links.map(link => link.getAttribute("href")));
+    expect(new Set(destinations).size).toBe(destinations.length);
+    expect(destinations.every(path => path.startsWith("/") && !/[#?]/.test(path))).toBe(true);
+
+    const assertTopic = async ([label, path, present, absent]) => {
+      await expect.poll(() => new URL(page.url()).pathname).toBe(path);
+      expect(new URL(page.url()).hash).toBe("");
+      expect(new URL(page.url()).search).toBe("");
+      await connected(page);
+      await expect(menu.locator("a[aria-current='page']")).toHaveAccessibleName(label);
+      await expect(page).toHaveTitle(new RegExp(label));
+      await expect(page.locator(present)).toBeVisible();
+      await expect(page.locator(absent)).toHaveCount(0);
+      await expect(page.locator("#design-appbar a[aria-current='page']")).toHaveAttribute("href", `/${section}`);
+    };
+
+    for (const topic of topics) {
+      await menu.getByRole("link", { name: topic[0], exact: true }).click();
+      await assertTopic(topic);
+      const title = await page.title();
+      await page.reload();
+      await assertTopic(topic);
+      await expect(page).toHaveTitle(title);
+    }
+    await page.goBack();
+    await assertTopic(topics.at(-2));
+    await page.goForward();
+    await assertTopic(topics.at(-1));
+    expect(errors).toEqual([]);
+  });
+}
+
+test("settings path routes open directly and replace legacy section bookmarks", async ({ page }) => {
+  const sectionsToVisit = [
+    ["general", "", "General"],
+    ["github", "/github", "GitHub integration"],
+    ["appearance", "/appearance", "Appearance"],
+    ["unknown", "", "General"]
+  ];
+  const errors = captureErrors(page, sectionsToVisit.map(([section]) => `/use-cases/settings?section=${section}`));
+  const sections = page.getByRole("navigation", { name: "Workspace settings sections" });
+  for (const [section, suffix, title] of sectionsToVisit) {
+    const path = `/use-cases/settings${suffix}`;
+    const redirectResponse = page.waitForResponse(response => response.url().endsWith(`/use-cases/settings?section=${section}`));
+    await page.goto(`/use-cases/settings?section=${section}`);
+    const redirect = await redirectResponse;
+    expect(redirect.status()).toBe(302);
+    expect(new URL(redirect.headers().location, page.url()).pathname).toBe(path);
+    await expect.poll(() => `${new URL(page.url()).pathname}${new URL(page.url()).search}`).toBe(path);
+    await connected(page);
+    await expect(page.locator("#settings-section-title")).toHaveText(title);
+    await expect(sections.locator("a[aria-current='page']")).toHaveAttribute("href", path);
+    await page.reload();
+    await connected(page);
+    await expect(page.locator("#settings-section-title")).toHaveText(title);
+    expect(await sections.locator("a").evaluateAll(links => links.every(link => !/[#?]/.test(link.getAttribute("href"))))).toBe(true);
+  }
   expect(errors).toEqual([]);
 });
 

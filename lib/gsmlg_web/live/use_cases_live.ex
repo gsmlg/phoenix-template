@@ -46,6 +46,34 @@ defmodule GsmlgWeb.UseCasesLive do
   end
 
   @impl true
+  def handle_params(_params, _uri, socket) do
+    {page, title, description} =
+      case socket.assigns.live_action do
+        :index ->
+          {"use-cases", "Use Cases",
+           "Practical workflows drawn from real applications. Try the edge cases, then carry the pattern into your own product."}
+
+        :workspace_settings ->
+          {"settings", "Workspace settings",
+           "Validate a workspace name, save a draft, and recover through cancellation."}
+
+        :records ->
+          {"records", "Record browser",
+           "Combine search and status filters, inspect records, and recover from empty results."}
+
+        :confirmation ->
+          {"confirmation", "Confirmation",
+           "Name the affected object and confirm the consequences before removing it."}
+
+        :progress ->
+          {"progress", "Progress",
+           "Present bounded job progress with accurate status and a reset path."}
+      end
+
+    {:noreply, assign(socket, current_page: page, page_title: title, description: description)}
+  end
+
+  @impl true
   def handle_event("validate", %{"profile" => %{"name" => name}}, socket) do
     {:noreply, assign(socket, name: name, error: name_error(name), saved: nil)}
   end
@@ -136,27 +164,37 @@ defmodule GsmlgWeb.UseCasesLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} active="use-cases">
+    <Layouts.app flash={@flash} active="use-cases" page={@current_page}>
       <div class="design-page">
         <header>
           <p class="design-eyebrow">Reference / Use cases</p>
-          <h1 class="design-title">Components, working together.</h1>
+          <h1 class="design-title">
+            {if @live_action == :index, do: "Components, working together.", else: @page_title}
+          </h1>
           <p class="design-lead">
-            Practical workflows drawn from real applications. Try the edge cases,
-            then carry the pattern into your own product.
+            {@description}
           </p>
           <p class="mt-4 text-sm text-on-surface-variant">
             All records are synthetic. Changes stay in this page and reset on reload.
           </p>
-          <nav aria-label="Use case sections" class="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm">
-            <a href="#workspace-settings" class="link">Workspace settings</a>
-            <a href="#record-browser" class="link">Record browser</a>
-            <a href="#confirmation" class="link">Confirmation</a>
-            <a href="#progress" class="link">Job progress</a>
+          <nav
+            :if={@live_action == :index}
+            aria-label="Use case sections"
+            class="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm"
+          >
+            <.link navigate={~p"/use-cases/workspace-settings"} class="link">Workspace settings</.link>
+            <.link navigate={~p"/use-cases/records"} class="link">Record browser</.link>
+            <.link navigate={~p"/use-cases/confirmation"} class="link">Confirmation</.link>
+            <.link navigate={~p"/use-cases/progress"} class="link">Job progress</.link>
           </nav>
         </header>
 
-        <section id="workspace-settings" aria-labelledby="settings-title" class="design-section">
+        <section
+          :if={@live_action in [:index, :workspace_settings]}
+          id="workspace-settings"
+          aria-labelledby="settings-title"
+          class="design-section"
+        >
           <div class="design-section-heading">
             <div>
               <p class="design-eyebrow">01 / Edit and save</p>
@@ -167,6 +205,11 @@ defmodule GsmlgWeb.UseCasesLive do
           <p class="max-w-3xl text-on-surface-variant">
             Validate close to the field, keep a recoverable draft, and make the save boundary clear.
             Cancel restores the last value saved in this preview.
+          </p>
+          <p class="mt-3 text-sm">
+            <.link navigate={~p"/use-cases/settings"} class="design-text-link">
+              Open the settings page layout →
+            </.link>
           </p>
           <div class="design-preview mt-6">
             <div class="design-preview-body grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)]">
@@ -231,7 +274,12 @@ defmodule GsmlgWeb.UseCasesLive do
           </div>
         </section>
 
-        <section id="record-browser" aria-labelledby="records-title" class="design-section">
+        <section
+          :if={@live_action in [:index, :records]}
+          id="record-browser"
+          aria-labelledby="records-title"
+          class="design-section"
+        >
           <div class="design-section-heading">
             <div>
               <p class="design-eyebrow">02 / Find and inspect</p>
@@ -341,7 +389,12 @@ defmodule GsmlgWeb.UseCasesLive do
           </div>
         </section>
 
-        <section id="confirmation" aria-labelledby="confirmation-title" class="design-section">
+        <section
+          :if={@live_action in [:index, :confirmation]}
+          id="confirmation"
+          aria-labelledby="confirmation-title"
+          class="design-section"
+        >
           <div class="design-section-heading">
             <div>
               <p class="design-eyebrow">03 / Make consequences clear</p>
@@ -407,7 +460,12 @@ defmodule GsmlgWeb.UseCasesLive do
           </div>
         </section>
 
-        <section id="progress" aria-labelledby="progress-title" class="design-section">
+        <section
+          :if={@live_action in [:index, :progress]}
+          id="progress"
+          aria-labelledby="progress-title"
+          class="design-section"
+        >
           <div class="design-section-heading">
             <div>
               <p class="design-eyebrow">04 / Show work in context</p>
@@ -471,7 +529,7 @@ defmodule GsmlgWeb.UseCasesLive do
           </div>
         </section>
 
-        <section aria-labelledby="lifetime-title" class="design-section">
+        <section :if={@live_action == :index} aria-labelledby="lifetime-title" class="design-section">
           <div class="design-section-heading">
             <div>
               <p class="design-eyebrow">Continue exploring</p>

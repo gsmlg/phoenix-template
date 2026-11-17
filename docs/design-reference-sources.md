@@ -53,9 +53,15 @@ This template maps that hierarchy to its reference sections. Per the reference
 UI direction, Home uses `dm_page_header` with a centered Hero and scroll-aware
 navigation, rather than Backplane's public-home `dm_appbar`. Home has no left
 menu; other pages expose section topics and demonstrations in the left menu.
-The menu is fixed-width and CSS-sticky; Backplane's collapsible persistent child
-LiveView and application-specific navigation state are not copied. Hologram
-renders equivalent navigation markup in its separate browser-runtime document.
+The menu remains CSS-sticky and uses DuskMoon's built-in collapsible component
+and hook on LiveView pages. It changes from a 16rem menu to a 4.5rem icon rail,
+and the content area receives the released width. A fixed toggle stays outside
+the scrolling menu body. The browser preference `gsmlg.navigation.collapsed`
+is shared across page loads and renderers; unavailable storage leaves in-page
+toggling usable. Backplane's persistent child LiveView and application-specific
+navigation state are not copied. Hologram uses its own component lifecycle,
+the same central menu data and DuskMoon icons, and native hint popovers. It
+does not load LiveSocket or manually mount LiveView hooks.
 
 ## Routes and Ownership
 
@@ -63,17 +69,41 @@ renders equivalent navigation markup in its separate browser-runtime document.
 | --- | --- | --- |
 | `/` | Repository introduction and entry points | LiveView |
 | `/guidelines` | Canonical design specification and token examples | LiveView |
+| `/guidelines/colors` | Semantic color examples | LiveView |
+| `/guidelines/specification` | Canonical design specification | LiveView |
 | `/guidelines/DESIGN.md` | Exact compiled specification download with SHA-256 header | Controller |
 | `/components` | Core, Elements, Phoenix, and React compositions | LiveView, with isolated React iframe |
+| `/components/core`, `/components/elements`, `/components/phoenix`, `/components/react` | One selected integration per route | LiveView, with isolated React iframe on React |
 | `/previews/react` | Actual React adapter and local state | Separate HTML document and JS entry |
 | `/use-cases` | Practical workflow compositions and source attribution | LiveView |
+| `/use-cases/workspace-settings`, `/use-cases/records`, `/use-cases/confirmation`, `/use-cases/progress` | One selected workflow per route | LiveView |
+| `/use-cases/settings` | Object settings identity and General profile draft | LiveView |
+| `/use-cases/settings/github` | GitHub integration draft | LiveView |
+| `/use-cases/settings/appearance` | Auto, Light, and Dark preferences | LiveView |
 | `/use-cases/session` | Shared per-session state, expiry, and reconnect behavior | LiveView and Session Process |
 | `/hologram-demo` | Browser-local actions and reload lifecycle | Hologram |
 | `/ui` | Compatibility redirect to `/use-cases` | Controller |
 
+Every contextual left-menu destination uses a distinct path with matching content,
+page title, and active state. Introduction routes retain the complete overview;
+topic routes show only their selected topic. Settings section links patch between
+path routes to retain independent drafts. Legacy `?section=` bookmarks are replaced
+with their corresponding paths.
+
 React package CSS has a separate stylesheet entry and is linked only in the
 preview document, before the shared stylesheet. It must not override Phoenix styles in
 the parent document; the shared stylesheet remains authoritative for theme tokens.
+
+The settings page adapts the supplied object-settings layout: identity above a
+local section menu and content panel. General and GitHub integration use synthetic,
+page-local data; saving does not authorize an account or call GitHub. Appearance
+is a browser preference and persists separately from those example forms.
+Application Appbars keep navigation beside the brand on the left and have no
+theme selector. The home PageHeader retains its dropdown. Appearance's Auto,
+Light, and Dark controls share the `theme` preference (`default`, `sunshine`, or
+`moonlight`); the cookie carries only the resolved theme for server rendering.
+Hologram initializes the same theme module through its JS interop after mounting,
+without LiveSocket, so Auto and cross-tab changes also work in its separate document.
 
 The specification is embedded at compile time, so the release does not need a
 working-directory `DESIGN.md`. The download remains byte-for-byte identical to
@@ -100,3 +130,11 @@ environment so the standalone stylesheet is always emitted for deployment.
 The source references only the aggregate package's published stylesheet. Remove
 the relative artifact reference and environment split when a fixed Bundler
 release supports public CSS imports in both paths, then rerun the same checks.
+
+Sidebar storage checks deny reads and writes for `gsmlg.navigation.collapsed`
+while preserving storage used by other application features. Completely denying
+access to `window.localStorage` exposes an existing LiveSocket constructor failure
+before sidebar hooks mount (`deps/phoenix_live_view/assets/js/phoenix_live_view/live_socket.ts:391`
+in the installed dependency). That application bootstrap issue remains outside
+the sidebar change; these checks do not establish operation with all browser
+storage disabled.

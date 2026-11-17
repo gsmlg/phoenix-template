@@ -24,6 +24,11 @@ when there is no specific product reason to deviate. Existing pages are
 implementation references, not proof that every requirement has been verified.
 Address issues within the current task's scope without redesigning unrelated UI.
 
+These rules govern new and changed UI. Keep business validation, persistence,
+permissions, and lifecycle transitions in their owning application domain. A visual
+alignment task must not silently change those contracts. Record product-specific
+decisions and exceptions in the consuming application's alignment record.
+
 All project-authored content must be in English, including UI copy, documentation,
 code comments, identifiers, examples, and developer-facing messages.
 
@@ -69,6 +74,9 @@ registerAll();
   Do not introduce a second UI framework or a parallel component library.
 - LiveView hooks and custom element registration have separate responsibilities;
   neither replaces the other.
+- In the Phoenix reference, hooks handle browser interactions such as opening,
+  closing, and focusing a dialog. LiveView owns form state and invokes the owning
+  context for validation, authorization, and persistence. Reuse existing hooks.
 - Use native HTML for semantic structure and verified cases requiring native form
   behavior, styled with existing Core classes. Do not recreate the appearance and
   interaction of an existing DuskMoon component.
@@ -114,8 +122,62 @@ Reference existing `--color-*` variables when custom CSS needs a color.
   theme switcher and localStorage/cookie synchronization. Pages must render and
   LiveView must connect when storage is unavailable. Do not create independent
   theme state inside individual components.
+- Appearance settings present Auto, Light, and Dark as one segmented selection.
+  Auto follows the operating system, including changes while the page is open;
+  Light resolves to `sunshine`, and Dark resolves to `moonlight`. Persist the
+  selected preference rather than replacing Auto with its current resolved theme.
+- Keep the home PageHeader's existing theme dropdown. Application Appbars contain
+  navigation and application actions; theme preferences belong in Settings →
+  Appearance. Both entry points share one preference and synchronize open tabs.
 
 ## 4. Page Structure, Density, and Spacing
+
+### Information Architecture and Navigation
+
+- Top-level navigation represents stable product areas; related features belong
+  in the matching contextual menu. Define navigation centrally in the shared
+  layout, including labels, grouping, and active items.
+- A detail or editing page retains the navigation ownership of its parent list.
+  Keep route prefixes, breadcrumbs, and active items consistent within an area.
+- Configuration pages manage settings; dashboards and monitoring pages show
+  runtime data. Give these entry points distinct labels even when they concern
+  the same resource.
+- Reuse the application's navigation behavior and existing collapse preferences.
+  Pages must not duplicate menu headings or maintain independent sidebar state.
+- Changes to existing public URLs require compatibility redirects and checks for
+  navigation, direct visits, and browser history.
+
+### Sidebar Collapse and Expansion
+
+- Shared desktop sidebars support expanded and collapsed states. Provide a
+  visible, keyboard-operable toggle with an action-specific accessible name,
+  such as "Collapse navigation" or "Expand navigation", and accurate
+  `aria-expanded` and `aria-controls` attributes.
+- The default collapsed state is an icon rail. Keep navigation items recognizable
+  through icons, accessible names, and tooltips available on hover and keyboard
+  focus. Preserve the active item, and keep the expand control reachable.
+- Release the unused sidebar width to the content area when collapsed; do not
+  leave an empty column or move the appbar. Expanding restores the normal sidebar
+  width without covering content or obscuring keyboard focus.
+- Own the preference in the shared application shell. Preserve it across page
+  navigation and reloads, including navigation between renderers. If browser
+  storage is unavailable, in-page toggling and navigation must still work.
+- Collapsing or expanding must preserve the current page, form drafts, selected
+  items, and useful scroll positions. It must not submit a form, trigger a
+  business action, or reset the theme.
+- Keep the collapse control outside the scrolling menu body so it remains
+  reachable in long menus. Give the menu and its controls stable identifiers.
+- A narrow-screen drawer, when present, is a separate presentation of the same
+  navigation. Opening or closing it must not overwrite the desktop collapse
+  preference or make essential destinations unreachable.
+
+In the Phoenix reference, use the installed `dm_left_menu` collapsible API and
+its `DuskmoonLeftMenu` hook. Supply a stable menu `id`, icon and label metadata,
+and a shared `storage_key` when the browser owns persistence. Keep width and
+scroll behavior in the shared layout. Other renderers preserve the same visual
+and interaction contract through their own runtime, as described in section 8.
+
+### Phoenix Reference Shell
 
 LiveView pages reuse `Layouts.home` for Home and `Layouts.app` for introduction
 pages. The hierarchy follows Backplane's separation of public-home and
@@ -129,15 +191,22 @@ application pages:
   a secondary left menu (`dm_left_menu`) and the surface content area. The
   appbar links to Overview, Guidelines, Components, and Use Cases. The left
   menu contains the current section's topics and related demonstrations.
+- In the application Appbar, place navigation beside the brand on the left,
+  as in Backplane. Keep utility actions on the right and omit theme controls.
 - On introduction pages, keep the appbar at the top while scrolling and the
   desktop left menu below it. Keep breadcrumbs inside the content area; do not use them in place of
-  the appbar. Place the theme control in the appbar and the footer below content.
+  the appbar. Place the footer below content; Appearance owns theme preferences.
 - Identify the current section in the appbar and the current page in the left
-  menu. Topic links scroll to headings; they do not imply automatic scroll tracking.
+  menu. Every left-menu destination has its own path route and renders its
+  corresponding content. Do not substitute hash anchors or query selectors for
+  page routes. Direct visits, reloads, and browser Back/Forward must restore the
+  same content, title, and active menu item.
 
 Hologram uses a separate document layout with the same appbar and left-menu
 hierarchy, shared visual tokens, and the persisted theme. Consuming applications
 map these two navigation levels to their own product hierarchy.
+
+### Density and Spacing
 
 | Context | Default |
 | --- | --- |
@@ -156,7 +225,8 @@ map these two navigation levels to their own product hierarchy.
 - Standard pages scroll naturally. Sticky navigation must not obscure headings,
   anchor targets, or keyboard focus.
 - Layouts must shrink gracefully. Long names, errors, and action groups must not
-  cause page-level horizontal overflow.
+  cause page-level horizontal overflow. Give flexible content columns `min-w-0`
+  so their children can shrink within the shared shell.
 - Stack narrow layouts in reading order. Do not hide primary actions or essential
   data merely to fit the width.
 - Wide tables may scroll horizontally within a defined container, not across the
@@ -198,6 +268,7 @@ map these two navigation levels to their own product hierarchy.
 | Disabled controls | Use actual disabled behavior or appropriate semantic state, with an understandable reason |
 | Empty data | Distinguish "No data yet" from "No matching results" and provide a next step such as creating an item or clearing filters |
 | Request failure | Preserve recoverable input and data, offer retry, and do not disguise failure as an empty list |
+| Stale data | Identify the last known state and refresh result; keep retry available without blocking unrelated page actions |
 | Destructive actions | Identify the affected object and consequences, offer cancellation, and explicitly confirm irreversible actions |
 | Progress | Provide an accessible name and accurate range/value; do not show a fabricated percentage for unknown progress |
 | Disconnection or expired session | Explain the state and recovery path rather than silently disabling every control |
@@ -210,6 +281,113 @@ toasts. The application owns confirmation state, and cancellation must not execu
 the action. Hidden controls and client-side confirmation do not replace server-side
 authorization.
 
+### Lists and Table Actions
+
+- Operational list pages present the title and short description, page actions,
+  filters when needed, then the list or table. For lists that support creation,
+  place the primary Add action in the title area. When an Add/Edit modal is open,
+  Save is its primary action.
+- Prefer a table for structured configuration, with clear column headings,
+  readable status, and a separate Actions column. Use cards when the content
+  needs a different reading order rather than to decorate every row.
+- Repeated table actions use compact icon buttons with consistent size and shape.
+  Page-level Add and form Save/Cancel actions retain visible text labels.
+- Every icon action has an accessible name containing the action and object,
+  such as "Edit workspace route", and a short tooltip such as "Edit". Tooltips
+  must work on hover and keyboard focus. Attach trigger attributes to the actual
+  interactive element; a wrapper alone does not establish that behavior.
+- Order row actions consistently: edit, enable/disable when applicable, other
+  domain actions, then delete. Use destructive styling for delete and confirm
+  the affected object and consequences before executing it.
+- Enable/disable labels describe the next action. An enabled item offers Disable;
+  a disabled item offers Enable. Show the current state separately as text,
+  usually in the Status column.
+- Give row actions stable, unique identifiers. While an action is pending, show
+  progress on the affected row and prevent duplicate requests. Preserve useful
+  filter and pagination context after success or failure.
+
+In Phoenix, prefer `dm_table`, `dm_btn`, and existing DuskMoon icon components.
+Bind `dm_tooltip` trigger attributes with `:let` and pass them to the actual
+`dm_btn`. Pass supported `patch`, `navigate`, or `href` attributes directly to a
+navigation button; do not wrap it in another link or nest interactive elements.
+
+### Settings Pages with Section Navigation
+
+- Object settings may use a dedicated page: a title and description, an identity
+  header naming the object, and a two-column settings region. The left column
+  lists settings sections; the right column contains the active section's form
+  or preference controls. Keep a clear return link to the owning area.
+- This section navigation belongs to the current object, within the application
+  shell. Distinguish it from the global left menu and mark its active destination
+  with `aria-current`. Each section has its own path route, supports direct
+  visits and browser history, and renders only the selected section.
+- Use this pattern for General, integrations, Appearance, and comparable settings.
+  Keep long-lived object settings in their page rather than forcing them into an
+  Add/Edit modal. Stack the settings region in reading order on narrow layouts.
+- Give each section a heading and concise explanation. Forms have visible labels,
+  nearby validation, Save and Cancel actions, and one primary action. Preserve
+  independent drafts while switching sections; Cancel restores that section's
+  last saved values. Identity metadata remains separate from editable fields.
+- Immediate preferences such as color mode explain that they apply immediately;
+  they do not require a redundant Save button. Keep configuration saves separate
+  from authorization, connection tests, and other external operations.
+
+### Add and Edit Modal Forms
+
+- Configuration lists default to Add opening a modal form, with the edit action
+  opening the corresponding editing form. Keep a permanent creation form above
+  a list only when the workflow has a documented reason for it. Dedicated or
+  complex editing workflows may use a separate page.
+- The title identifies Add or Edit and names the object. Keep the selected object,
+  draft values, validation errors, and submission state explicit.
+- Cancel, close, and Escape discard the unsaved draft and clear validation errors
+  without writing. The next Add opens a clean form; editing another object must
+  not inherit the previous object's values or errors.
+- A successful save closes the modal, refreshes the affected list, and shows
+  accurate success feedback. Validation or request failure keeps the modal open
+  with recoverable input and correctable errors.
+- On open, focus a sensible input. Keep keyboard focus within the modal and
+  restore it to the trigger on close. Constrain the dialog to the viewport height,
+  allow the body to scroll, and keep Save and Cancel reachable on narrow screens.
+- Collect only fields required for the task. Select an existing provider or
+  credential reference when it already owns connection details; do not duplicate
+  endpoint and secret fields across capability forms.
+
+In Phoenix, use `dm_modal` with native dialog behavior and the installed
+components/hooks to coordinate browser state. LiveView owns whether the form
+exists and which object it edits. DOM patches must preserve an open, valid draft.
+Forms explicitly use `phx-submit`; Save uses the supported submit behavior, and
+non-submit buttons set `type="button"`.
+
+### Configuration Defaults and State Changes
+
+- Define creation defaults in the consuming application's domain contract, and
+  keep schema/context and database defaults consistent. When a product requires
+  enabled-by-default configuration, enforce it on the server; do not rely only
+  on a prefilled control or trust an extra submitted enabled field.
+- Keep enable/disable transitions separate from ordinary editing. After creation,
+  use the list's explicit state action; editing other fields preserves the current
+  enabled state. Ordinary Edit forms do not include an enable switch.
+- Creation forms expose only permitted inputs. A lifecycle default owned by the
+  domain must not be represented as a client-controlled hidden state field.
+- Changing a creation default affects future objects. Preserve existing objects'
+  state unless an explicit migration is part of the authorized task.
+- Configured enablement and actual availability are separate states. An enabled
+  item with an unavailable dependency must show the specific reason. Connection,
+  authorization, and job execution results come from the actual operation.
+
+### Feedback and Data Boundaries
+
+- Keep feedback near the task: field and form errors inside the form, row progress
+  beside the affected item, and completed action results in the shared flash/alert.
+  Clear stale success feedback when the input or result is no longer current.
+- Opening a configuration page or form, and ordinary saves, must not implicitly
+  run paid API probes. Connection tests, external refreshes, and similar operations
+  need explicit, separately named actions.
+- Configuration lists show credential names or references. Do not echo plaintext
+  secrets in lists, logs, audit entries, or error messages. Dedicated credential
+  issuance and reveal flows follow their product's explicit access rules.
+
 ## 7. Accessibility and Motion
 
 - Every action must be keyboard-operable. Preserve visible `focus-visible` styling;
@@ -218,6 +396,9 @@ authorization.
   clickable `div` elements or nest interactive controls.
 - Dialogs need a title, sensible initial focus, keyboard dismissal, and focus
   restoration on close. Modal interfaces must contain focus appropriately.
+- Tooltips, menus, confirmations, and dialogs must remain usable inside or above
+  scrollable regions. Prevent table overflow containers from clipping their
+  controls, text, or focus indicators.
 - Use suitable `role="status"` or `aria-live` regions for dynamic updates and
   appropriate alerts for important errors. Avoid announcing entire lists.
 - Target at least 4.5:1 contrast for body text and 3:1 for essential control
@@ -262,11 +443,28 @@ For UI changes, check the applicable scenarios:
   without individual component package imports or per-element registration.
 - [ ] Heading hierarchy, primary actions, density, spacing, and copy follow this
   document; all project-authored text is in English.
+- [ ] Navigation is defined centrally; list, detail, and editing pages retain the
+  correct product area, contextual menu, active item, and route compatibility.
+- [ ] Every left-menu destination has a distinct path, renders its own content,
+  and restores its title and active item on direct visits, reloads, and history.
+- [ ] Sidebar collapse and expansion work with the keyboard, preserve state
+  across navigation and reloads, keep rail destinations and the expand control
+  accessible, and release the collapsed width to the content area.
+- [ ] Table actions have consistent order, accessible object-specific names,
+  working tooltips, and accurate current-state and next-action labels.
 - [ ] Text, inputs, states, and focus remain legible in `sunshine` and `moonlight`.
+- [ ] Appearance supports Auto, Light, and Dark; Auto follows system changes,
+  explicit modes remain fixed, and both theme entry points share the preference.
+- [ ] Object settings preserve section ownership, bookmarkable navigation,
+  independent drafts, and accurate save/cancel behavior.
 - [ ] Applicable default, loading, empty, error, success, disabled, and disconnected
   states have real behavior.
 - [ ] Forms support validation, cancellation, and retry without duplicate
   submission or loss of recoverable input.
+- [ ] Add/Edit drafts and errors are isolated per object; Cancel, close, and Escape
+  write nothing, success closes the modal, and failure preserves the draft.
+- [ ] Creation defaults match the product's domain contract, ordinary editing
+  preserves enablement, and availability reflects actual dependency state.
 - [ ] Keyboard operation, accessible names, and required focus restoration work.
 - [ ] Components are registered in a real browser; the document, CSS, and JS load
   successfully, and relevant LiveView interactions work.
@@ -290,6 +488,13 @@ For documentation-only changes, check content, relative links, and
 to global colors, component sources, registration, layout, or interaction rules
 must update this document and explain their impact. Do not silently turn a
 single-page exception into a global convention.
+
+For list and modal changes, regress create, edit, cancellation, validation, state
+changes, and object isolation at the owning domain and UI layers. Open, focus,
+and close tooltips and dialogs in a real browser; DOM presence alone does not
+verify focus restoration, Escape behavior, or clipping. When responsive validation
+is in the task's scope, include a narrow viewport around 390 CSS pixels and verify
+table scrolling and reachable form actions alongside the desktop layout.
 
 ## 10. Downstream Alignment and Specification Distribution
 
@@ -315,6 +520,11 @@ Compare the adopted revision with the intended new revision before updating an
 application. Review changes to tokens, component APIs, layouts, interaction
 behavior, and acceptance criteria together; do not assume a dependency version
 bump alone establishes design alignment.
+
+Adopting the list and modal conventions requires workflow and focus verification
+for the affected pages. Keep product-specific creation defaults explicit, and
+record older pages awaiting alignment as gaps rather than claiming site-wide
+compliance from a documentation update.
 
 ### Distribution Rules
 
@@ -354,6 +564,13 @@ These paths refer to the matching source checkout, not separately published page
 - Styles and browser setup: `assets/css/app.css`, `assets/js/app.js`, and `assets/js/theme.js`.
 - Component examples: `lib/gsmlg_web/live/components_live.ex` and `assets/js/react_preview.js`.
 - Workflow examples: `lib/gsmlg_web/live/use_cases_live.ex` and `lib/gsmlg_web/live/session_live.ex`.
+- Settings page composition: `lib/gsmlg_web/live/settings_live.ex`.
 - Browser-local renderer: `lib/gsmlg_web/hologram/layout.ex`.
 - Integration and checks: `lib/gsmlg_web.ex`, `assets/browser/template.spec.mjs`, and `AGENTS.md`.
 - Pinned upstream sources and adaptation notes: `docs/design-reference-sources.md`.
+
+The navigation, list-action, modal-lifecycle, and feedback conventions were
+adapted from the [Backplane UI Implementation Guidelines](https://github.com/gsmlg-opt/backplane/blob/08fa68bc9185e16df652b7daab699cd5fa23816c/DESIGN.md),
+reviewed on 2026-11-18. Apply them through this specification's shared rules and
+the consuming application's domain contract; component registration in this
+template continues to use the aggregate `registerAll()` pattern in section 2.

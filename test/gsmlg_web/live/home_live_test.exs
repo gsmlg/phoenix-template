@@ -24,8 +24,8 @@ defmodule GsmlgWeb.HomeLiveTest do
 
   test "introduction pages use an appbar and contextual left menu", %{conn: conn} do
     for {path, label, destination} <- [
-          {~p"/guidelines", "Guidelines", "/guidelines#design-specification"},
-          {~p"/components", "Components", "/components#react"},
+          {~p"/guidelines", "Guidelines", "/guidelines/specification"},
+          {~p"/components", "Components", "/components/react"},
           {~p"/use-cases", "Use Cases", "/use-cases/session"},
           {~p"/use-cases/session", "Use Cases", "/hologram-demo"}
         ] do

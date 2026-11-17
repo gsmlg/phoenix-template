@@ -1,6 +1,11 @@
 defmodule GsmlgWeb.Hologram.Layout do
+  @moduledoc "Independent browser runtime with shared navigation and sidebar preferences."
   use Hologram.Component
+  use Hologram.JS
+  alias GsmlgWeb.Hologram.LeftMenu
   alias Hologram.UI.Runtime
+
+  js_import(:synchronizeTheme, from: "../../../assets/js/theme.js")
 
   def init(_props, component, server) do
     theme = get_cookie(server, "gsmlg_theme", "sunshine")
@@ -9,7 +14,14 @@ defmodule GsmlgWeb.Hologram.Layout do
     stylesheet =
       DuskmoonBundler.static_path(GsmlgWeb.Endpoint, "/assets/css/app.css", profile: :gsmlg)
 
-    put_state(component, theme: theme, stylesheet: stylesheet)
+    component
+    |> put_state(theme: theme, stylesheet: stylesheet)
+    |> put_action(:synchronize_theme)
+  end
+
+  def action(:synchronize_theme, _params, component) do
+    JS.call(:synchronizeTheme, [])
+    component
   end
 
   def template do
@@ -40,18 +52,7 @@ defmodule GsmlgWeb.Hologram.Layout do
             </div>
           </header>
           <div class="design-body">
-            <nav id="design-left-menu" class="design-left-menu" aria-label="Use Cases navigation">
-              <ul class="nested-menu">
-                <li class="nested-menu-title">Use Cases</li>
-                <li><a href="/use-cases">Introduction</a></li>
-                <li><a href="/use-cases#workspace-settings">Workspace settings</a></li>
-                <li><a href="/use-cases#record-browser">Record browser</a></li>
-                <li><a href="/use-cases#confirmation">Confirmation</a></li>
-                <li><a href="/use-cases#progress">Progress</a></li>
-                <li><a href="/use-cases/session">Session state</a></li>
-                <li><a href="/hologram-demo" class="nested-menu-active" aria-current="page">Browser-local state</a></li>
-              </ul>
-            </nav>
+            <LeftMenu cid="design-navigation" />
             <div class="design-workspace">
               <div class="design-topbar">
                 <nav aria-label="Breadcrumb" class="design-breadcrumb"><a href="/">Design reference</a><span aria-hidden="true">/</span><span>Use Cases</span></nav>

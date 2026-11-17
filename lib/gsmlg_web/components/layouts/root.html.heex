@@ -22,7 +22,10 @@
     <script>
       (() => {
         try {
-          const theme = localStorage.getItem("theme");
+          const preference = localStorage.getItem("theme");
+          const theme = preference === null || preference === "default"
+            ? (typeof matchMedia === "function" && matchMedia("(prefers-color-scheme: dark)").matches ? "moonlight" : "sunshine")
+            : preference;
           if (theme === "sunshine" || theme === "moonlight") {
             document.documentElement.setAttribute("data-theme", theme);
           }

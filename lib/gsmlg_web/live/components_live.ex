@@ -53,6 +53,34 @@ defmodule GsmlgWeb.ComponentsLive do
   end
 
   @impl true
+  def handle_params(_params, _uri, socket) do
+    {page, title, description} =
+      case socket.assigns.live_action do
+        :index ->
+          {"components", "Components",
+           "One visual language, four integration paths. Try the components here or open a dedicated integration page."}
+
+        :core ->
+          {"core", "Core CSS",
+           "Style native HTML with shared semantic tokens and browser-native behavior."}
+
+        :elements ->
+          {"elements", "Web Components",
+           "Use registered DuskMoon custom elements with their browser-owned state."}
+
+        :phoenix ->
+          {"phoenix", "Phoenix components",
+           "Compose HEEx components with server-connected LiveView interactions."}
+
+        :react ->
+          {"react", "React components",
+           "Explore the React adapter in an isolated document with the shared theme."}
+      end
+
+    {:noreply, assign(socket, current_page: page, page_title: title, description: description)}
+  end
+
+  @impl true
   def handle_event("core-add", _params, socket) do
     {:noreply, update(socket, :core_count, &(&1 + 1))}
   end
@@ -80,28 +108,33 @@ defmodule GsmlgWeb.ComponentsLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} active="components">
+    <Layouts.app flash={@flash} active="components" page={@current_page}>
       <div class="design-page">
         <header class="max-w-3xl">
           <p class="design-eyebrow">The building blocks</p>
-          <h1 class="design-title">Components</h1>
+          <h1 class="design-title">{@page_title}</h1>
           <p class="design-lead">
-            One visual language, four integration paths. Try the actual components,
-            inspect the markup, and choose the layer that fits your application.
+            {@description}
           </p>
         </header>
 
         <nav
+          :if={@live_action == :index}
           aria-label="Component sections"
           class="flex flex-wrap gap-2 border-b border-outline-variant pb-5"
         >
-          <a href="#core" class="btn btn-ghost">Core CSS</a>
-          <a href="#elements" class="btn btn-ghost">Web Components</a>
-          <a href="#phoenix" class="btn btn-ghost">Phoenix</a>
-          <a href="#react" class="btn btn-ghost">React</a>
+          <.link navigate={~p"/components/core"} class="btn btn-ghost">Core CSS</.link>
+          <.link navigate={~p"/components/elements"} class="btn btn-ghost">Web Components</.link>
+          <.link navigate={~p"/components/phoenix"} class="btn btn-ghost">Phoenix</.link>
+          <.link navigate={~p"/components/react"} class="btn btn-ghost">React</.link>
         </nav>
 
-        <section id="core" aria-labelledby="core-title" class="design-section scroll-mt-24">
+        <section
+          :if={@live_action in [:index, :core]}
+          id="core"
+          aria-labelledby="core-title"
+          class="design-section scroll-mt-24"
+        >
           <div class="flex flex-wrap items-start justify-between gap-4">
             <div class="max-w-2xl">
               <p class="design-eyebrow">01 / Style native HTML</p>
@@ -155,7 +188,12 @@ defmodule GsmlgWeb.ComponentsLive do
           </div>
         </section>
 
-        <section id="elements" aria-labelledby="elements-title" class="design-section scroll-mt-24">
+        <section
+          :if={@live_action in [:index, :elements]}
+          id="elements"
+          aria-labelledby="elements-title"
+          class="design-section scroll-mt-24"
+        >
           <div class="flex flex-wrap items-start justify-between gap-4">
             <div class="max-w-2xl">
               <p class="design-eyebrow">02 / Bring your own framework</p>
@@ -213,7 +251,12 @@ defmodule GsmlgWeb.ComponentsLive do
           </div>
         </section>
 
-        <section id="phoenix" aria-labelledby="phoenix-title" class="design-section scroll-mt-24">
+        <section
+          :if={@live_action in [:index, :phoenix]}
+          id="phoenix"
+          aria-labelledby="phoenix-title"
+          class="design-section scroll-mt-24"
+        >
           <div class="flex flex-wrap items-start justify-between gap-4">
             <div class="max-w-2xl">
               <p class="design-eyebrow">03 / Server-connected interaction</p>
@@ -295,7 +338,12 @@ defmodule GsmlgWeb.ComponentsLive do
           </div>
         </section>
 
-        <section id="react" aria-labelledby="react-title" class="design-section scroll-mt-24">
+        <section
+          :if={@live_action in [:index, :react]}
+          id="react"
+          aria-labelledby="react-title"
+          class="design-section scroll-mt-24"
+        >
           <div class="flex flex-wrap items-start justify-between gap-4">
             <div class="max-w-2xl">
               <p class="design-eyebrow">04 / Client-side application state</p>
