@@ -355,6 +355,45 @@ test("Appearance follows the system, persists explicit modes and shares the home
   expect(errors).toEqual([]);
 });
 
+for (const path of ["/components", "/hologram-demo"]) {
+  test(`sidebar preserves its width before the runtime loads on ${path}`, async ({ page }) => {
+    const errors = captureErrors(page);
+    await page.goto(path);
+    if (path !== "/hologram-demo") await connected(page);
+    const menu = page.locator("#design-left-menu");
+    const toggle = menu.locator("[data-left-menu-toggle]");
+    await expect(toggle).toHaveAccessibleName("Collapse navigation");
+    await toggle.click();
+    await expect(menu).toHaveCSS("width", "72px");
+
+    let loadRuntime;
+    const runtimeReady = new Promise(resolve => { loadRuntime = resolve; });
+    await page.route("**/*", async route => {
+      if (route.request().resourceType() === "script") await runtimeReady;
+      await route.continue();
+    });
+
+    try {
+      await page.reload({ waitUntil: "commit" });
+      await expect(menu).toHaveCSS("width", "72px");
+      await expect(toggle).toHaveAttribute("aria-expanded", "false");
+      await expect(toggle).toHaveAccessibleName("Expand navigation");
+    } finally {
+      loadRuntime();
+    }
+
+    if (path !== "/hologram-demo") await connected(page);
+    await expect(toggle).toBeEnabled();
+    await expect(menu).toHaveCSS("width", "72px");
+    await toggle.click();
+    await expect(menu).toHaveCSS("width", "256px");
+    await page.reload();
+    await expect(toggle).toHaveAccessibleName("Collapse navigation");
+    await expect(menu).toHaveCSS("width", "256px");
+    expect(errors).toEqual([]);
+  });
+}
+
 test("sidebar toggles when its preference storage is unavailable", async ({ page }) => {
   const errors = captureErrors(page);
   await page.addInitScript(() => {

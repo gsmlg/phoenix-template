@@ -3,6 +3,7 @@ defmodule GsmlgWeb.Hologram.Layout do
   use Hologram.Component
   use Hologram.JS
   alias GsmlgWeb.Hologram.LeftMenu
+  alias GsmlgWeb.SidebarBootstrap
   alias Hologram.UI.Runtime
 
   js_import(:synchronizeTheme, from: "../../../assets/js/theme.js")
@@ -31,6 +32,7 @@ defmodule GsmlgWeb.Hologram.Layout do
       <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <SidebarBootstrap cid="sidebar-bootstrap" />
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext x='4' y='25' font-family='sans-serif' font-size='28' font-weight='700' fill='currentColor'%3Ed.%3C/text%3E%3C/svg%3E" />
         <title>Browser-local state · DuskMoon Design</title>
         <link rel="stylesheet" href={@stylesheet} />

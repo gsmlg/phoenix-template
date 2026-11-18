@@ -160,8 +160,9 @@ Reference existing `--color-*` variables when custom CSS needs a color.
   leave an empty column or move the appbar. Expanding restores the normal sidebar
   width without covering content or obscuring keyboard focus.
 - Own the preference in the shared application shell. Preserve it across page
-  navigation and reloads, including navigation between renderers. If browser
-  storage is unavailable, in-page toggling and navigation must still work.
+  navigation and reloads, including navigation between renderers. The saved
+  sidebar width must apply from the first paint, before the page runtime starts.
+  If browser storage is unavailable, in-page toggling and navigation must still work.
 - Collapsing or expanding must preserve the current page, form drafts, selected
   items, and useful scroll positions. It must not submit a form, trigger a
   business action, or reset the theme.
