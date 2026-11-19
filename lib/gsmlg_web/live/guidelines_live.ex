@@ -21,7 +21,7 @@ defmodule GsmlgWeb.GuidelinesLive do
 
         :colors ->
           {"tokens", "Semantic colors",
-           "Color roles stay consistent while their appearance adapts to the selected theme."}
+           "Compare the same color roles in the light and dark themes."}
 
         :specification ->
           {"specification", "Design specification",
@@ -65,36 +65,47 @@ defmodule GsmlgWeb.GuidelinesLive do
               class="design-text-link"
             >Token source ↗</a>
           </div>
-          <div class="grid gap-3 sm:grid-cols-3 lg:grid-cols-6" id="token-examples">
-            <div class="rounded-xl border border-outline-variant bg-primary p-4 text-primary-content">
-              <p class="text-sm font-semibold">Primary</p><p class="mt-6 text-xs">The main action</p>
-            </div>
-            <div class="rounded-xl border border-outline-variant bg-secondary p-4 text-secondary-content">
-              <p class="text-sm font-semibold">Secondary</p><p class="mt-6 text-xs">
-                Supporting emphasis
-              </p>
-            </div>
-            <div class="rounded-xl border border-outline-variant bg-tertiary p-4 text-tertiary-content">
-              <p class="text-sm font-semibold">Tertiary</p><p class="mt-6 text-xs">
-                A distinct accent
-              </p>
-            </div>
-            <div class="rounded-xl border border-outline-variant bg-surface p-4 text-on-surface">
-              <p class="text-sm font-semibold">Surface</p><p class="mt-6 text-xs">The page canvas</p>
-            </div>
-            <div class="rounded-xl border border-outline-variant bg-surface-container p-4 text-on-surface">
-              <p class="text-sm font-semibold">Container</p><p class="mt-6 text-xs">
-                A content group
-              </p>
-            </div>
-            <div class="rounded-xl border border-outline-variant bg-surface-container-high p-4 text-on-surface">
-              <p class="text-sm font-semibold">Elevated</p><p class="mt-6 text-xs">
-                A floating layer
-              </p>
-            </div>
+          <div class="grid gap-4 xl:grid-cols-2" id="token-examples">
+            <section
+              :for={{theme, label} <- [{"sunshine", "Light"}, {"moonlight", "Dark"}]}
+              data-theme={theme}
+              aria-labelledby={"token-theme-#{theme}"}
+              class="rounded-xl border border-outline-variant bg-surface p-4 text-on-surface"
+            >
+              <div class="mb-4 flex items-baseline gap-3">
+                <h3 id={"token-theme-#{theme}"} class="font-semibold">{label}</h3>
+                <code class="text-xs text-on-surface-variant">{theme}</code>
+              </div>
+              <dl class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                <div class="rounded-xl border border-outline-variant bg-primary p-4 text-primary-content">
+                  <dt class="text-sm font-semibold">Primary</dt>
+                  <dd class="mt-6 text-xs">The main action</dd>
+                </div>
+                <div class="rounded-xl border border-outline-variant bg-secondary p-4 text-secondary-content">
+                  <dt class="text-sm font-semibold">Secondary</dt>
+                  <dd class="mt-6 text-xs">Supporting emphasis</dd>
+                </div>
+                <div class="rounded-xl border border-outline-variant bg-tertiary p-4 text-tertiary-content">
+                  <dt class="text-sm font-semibold">Tertiary</dt>
+                  <dd class="mt-6 text-xs">A distinct accent</dd>
+                </div>
+                <div class="rounded-xl border border-outline-variant bg-surface p-4 text-on-surface">
+                  <dt class="text-sm font-semibold">Surface</dt>
+                  <dd class="mt-6 text-xs">The page canvas</dd>
+                </div>
+                <div class="rounded-xl border border-outline-variant bg-surface-container p-4 text-on-surface">
+                  <dt class="text-sm font-semibold">Container</dt>
+                  <dd class="mt-6 text-xs">A content group</dd>
+                </div>
+                <div class="rounded-xl border border-outline-variant bg-surface-container-high p-4 text-on-surface">
+                  <dt class="text-sm font-semibold">Elevated</dt>
+                  <dd class="mt-6 text-xs">A floating layer</dd>
+                </div>
+              </dl>
+            </section>
           </div>
           <p class="mt-4 text-sm text-on-surface-variant">
-            Change the color mode in <.link navigate={~p"/use-cases/settings/appearance"} class="link">Appearance settings</.link>. The semantic roles stay the same; their appearance adapts.
+            Set the app theme in <.link navigate={~p"/use-cases/settings/appearance"} class="link">Appearance settings</.link>.
           </p>
         </section>
         <section

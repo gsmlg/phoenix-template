@@ -57,6 +57,45 @@ test("reference navigation, ecosystem roles and canonical specification export",
   expect(errors).toEqual([]);
 });
 
+test("Semantic colors compares both palettes independently of the app theme", async ({ page }) => {
+  const errors = captureErrors(page);
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.addInitScript(() => localStorage.setItem("theme", "sunshine"));
+  await page.goto("/guidelines/colors");
+  await connected(page);
+
+  const light = page.getByRole("region", { name: "Light", exact: true });
+  const dark = page.getByRole("region", { name: "Dark", exact: true });
+  async function palette(panel) {
+    await expect(panel).toBeVisible();
+    return panel.locator("dl > div").evaluateAll(swatches => swatches.map(swatch => ({
+      role: swatch.querySelector("dt").textContent,
+      background: getComputedStyle(swatch).backgroundColor,
+      foreground: getComputedStyle(swatch).color,
+    })));
+  }
+
+  const lightColors = await palette(light);
+  const darkColors = await palette(dark);
+  const lightBox = await light.boundingBox();
+  const darkBox = await dark.boundingBox();
+  expect(darkBox.y).toBe(lightBox.y);
+  expect(darkBox.x).toBeGreaterThan(lightBox.x + lightBox.width);
+  expect(lightColors.map(({ role }) => role)).toEqual([
+    "Primary", "Secondary", "Tertiary", "Surface", "Container", "Elevated",
+  ]);
+  expect(darkColors.map(({ role }) => role)).toEqual(lightColors.map(({ role }) => role));
+  for (const [index, swatch] of lightColors.entries()) {
+    expect(darkColors[index].background).not.toBe(swatch.background);
+  }
+  expect(darkColors[3].foreground).not.toBe(lightColors[3].foreground);
+
+  await selectTheme(page, "moonlight");
+  expect(await palette(light)).toEqual(lightColors);
+  expect(await palette(dark)).toEqual(darkColors);
+  expect(errors).toEqual([]);
+});
+
 test("Core, Phoenix and React execute real interactions and share both themes", async ({ page }, testInfo) => {
   const errors = captureErrors(page);
   await page.goto("/components");

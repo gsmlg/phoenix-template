@@ -118,6 +118,8 @@ Reference existing `--color-*` variables when custom CSS needs a color.
   default, and do not wrap every paragraph in a card.
 - Support both `sunshine` and `moonlight`. Theme changes must preserve information
   hierarchy, layout, and interaction capabilities.
+- Show both palettes together in the semantic color reference. Scope each preview
+  to its own theme tokens so the app theme preference does not change the comparison.
 - Drive the theme through the root `data-theme` attribute. Preserve the existing
   theme switcher and localStorage/cookie synchronization. Pages must render and
   LiveView must connect when storage is unavailable. Do not create independent
