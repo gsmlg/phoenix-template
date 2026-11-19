@@ -92,6 +92,9 @@ test("Core, Phoenix and React execute real interactions and share both themes", 
     const parentPrimary = await page.locator("html").evaluate(el => getComputedStyle(el).getPropertyValue("--color-primary"));
     await expect.poll(() => react.locator("html").evaluate(el => getComputedStyle(el).getPropertyValue("--color-primary")))
       .toBe(parentPrimary);
+    await expect(react.locator("#react-approve")).toHaveCSS("padding", "10px 20px");
+    await expect(react.locator("#react-approve")).toHaveCSS("border-top-width", "1px");
+    await expect(react.locator("#react-approve")).not.toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
     await page.locator("#react-component-preview").scrollIntoViewIfNeeded();
     await page.screenshot({ path: testInfo.outputPath(`components-${theme}.png`) });
     await expect.poll(() => page.locator("body").evaluate(el => getComputedStyle(el).fontFamily)).toMatch(/sans-serif/);

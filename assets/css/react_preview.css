@@ -4,4 +4,7 @@
  * exported as ./styles.css. Remove the relative path and entry split after a
  * fixed Bundler release supports the public CSS import in both environments.
  */
+/* Establish Tailwind's layer order before the component styles register layers. */
+@layer theme, base, components, utilities;
+
 @import "../../node_modules/@duskmoon-dev/components/dist/styles.css";
