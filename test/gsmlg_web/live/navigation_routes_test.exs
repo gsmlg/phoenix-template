@@ -45,7 +45,9 @@ defmodule GsmlgWeb.NavigationRoutesTest do
       {"workspace-settings", "workspace-settings"},
       {"records", "record-browser"},
       {"confirmation", "confirmation"},
-      {"progress", "progress"}
+      {"progress", "progress"},
+      {"react-chat", "react-chat"},
+      {"react-form", "react-form"}
     ]
 
     for {topic, id} <- topics do

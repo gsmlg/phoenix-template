@@ -406,14 +406,31 @@ defmodule GsmlgWeb.ComponentsLive do
                 id="react-form-preview"
                 phx-hook="MountReactForm"
                 phx-update="ignore"
-                data-project-name="Workspace refresh"
+                data-react-props={Jason.encode!(%{initialName: "Workspace refresh"})}
                 data-react-stylesheet={
                   DuskmoonBundler.static_path(GsmlgWeb.Endpoint, "/assets/css/react_preview.css",
                     profile: :gsmlg
                   )
                 }
               >
-                <p role="status">Loading React form…</p>
+                <div role="status">
+                  <span class="sr-only">Loading React form…</span>
+                  <div data-react-skeleton aria-hidden="true" class="grid max-w-xl gap-4">
+                    <div class="grid gap-1.5">
+                      <div class="flex h-9 items-center">
+                        <div class="skeleton h-3 w-24"></div>
+                      </div>
+                      <div class="skeleton skeleton-input"></div>
+                    </div>
+                    <div class="grid gap-1.5">
+                      <div class="flex h-9 items-center">
+                        <div class="skeleton h-3 w-36"></div>
+                      </div>
+                      <div class="skeleton h-24"></div>
+                    </div>
+                    <div class="skeleton skeleton-button w-36"></div>
+                  </div>
+                </div>
               </div>
               <div id="react-form-result" role="status" class="break-words text-sm">
                 <p :if={@submitted_project}>

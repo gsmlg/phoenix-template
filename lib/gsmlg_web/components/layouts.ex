@@ -164,6 +164,8 @@ defmodule GsmlgWeb.Layouts do
       {"records", "Record browser", ~p"/use-cases/records", "table"},
       {"confirmation", "Confirmation", ~p"/use-cases/confirmation", "shield-check-outline"},
       {"progress", "Progress", ~p"/use-cases/progress", "progress-check"},
+      {"react-chat", "React Chat", ~p"/use-cases/react-chat", "chat-outline"},
+      {"react-form", "React Form", ~p"/use-cases/react-form", "clipboard-text-outline"},
       {"session", "Session state", ~p"/use-cases/session", "account-group-outline"},
       {"hologram", "Browser-local state", ~p"/hologram-demo", "web"}
     ]

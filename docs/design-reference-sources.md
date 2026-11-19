@@ -77,6 +77,8 @@ does not load LiveSocket or manually mount LiveView hooks.
 | `/previews/react` | Actual React adapter and local state | Separate HTML document and JS entry |
 | `/use-cases` | Practical workflow compositions and source attribution | LiveView |
 | `/use-cases/workspace-settings`, `/use-cases/records`, `/use-cases/confirmation`, `/use-cases/progress` | One selected workflow per route | LiveView |
+| `/use-cases/react-chat` | React chat composer and transcript with scripted replies | LiveView and mounted React |
+| `/use-cases/react-form` | React form generated from JSON Schema with validated submissions | LiveView and mounted React |
 | `/use-cases/settings` | Object settings identity and General profile draft | LiveView |
 | `/use-cases/settings/github` | GitHub integration draft | LiveView |
 | `/use-cases/settings/appearance` | Auto, Light, and Dark preferences | LiveView |
@@ -94,6 +96,9 @@ The standalone React preview loads package CSS before the shared stylesheet.
 The React form on `/components/react` loads the same package CSS inside a shadow
 root and inherits theme tokens from the host. The hook owns the form subtree,
 and LiveView validates submissions and displays the received values outside it.
+The two React use cases reuse this mount. Chat keeps its transcript in React and
+receives scripted replies from LiveView. The form renders the schema supplied by
+LiveView and displays the validated submission as JSON.
 
 The settings page adapts the supplied object-settings layout: identity above a
 local section menu and content panel. General and GitHub integration use synthetic,

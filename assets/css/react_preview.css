@@ -8,3 +8,41 @@
 @layer theme, base, components, utilities;
 
 @import "../../node_modules/@duskmoon-dev/components/dist/styles.css";
+
+/* The schema renderer emits native enum selects with the input class. */
+.schema-form .form-item-control:has(> select.input) {
+  position: relative;
+}
+
+.schema-form select.input {
+  appearance: none;
+  padding-inline-end: 2.75rem;
+}
+
+.schema-form .form-item-control:has(> select.input)::after {
+  content: "";
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-end: 1rem;
+  box-sizing: border-box;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-right: 2px solid var(--color-on-surface-variant);
+  border-bottom: 2px solid var(--color-on-surface-variant);
+  transform: translateY(-75%) rotate(45deg);
+  pointer-events: none;
+}
+
+.schema-form .form-item-control:has(> select.input:disabled)::after {
+  opacity: 0.5;
+}
+
+@media (forced-colors: active) {
+  .schema-form select.input {
+    appearance: auto;
+  }
+
+  .schema-form .form-item-control:has(> select.input)::after {
+    content: none;
+  }
+}

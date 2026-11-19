@@ -143,6 +143,77 @@ test("Core, Phoenix and React execute real interactions and share both themes", 
   expect(errors).toEqual([]);
 });
 
+test("React demos show CSS skeletons before their scripts load", async ({ page }) => {
+  const errors = captureErrors(page);
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  let releaseScripts;
+  const scripts = new Promise(resolve => { releaseScripts = resolve; });
+
+  await page.route("**/*", async route => {
+    if (route.request().resourceType() === "script") await scripts;
+    await route.continue();
+  });
+
+  const frame = page.frameLocator("#react-component-preview");
+  const preview = page.locator("#react-form-preview");
+  const form = preview.getByRole("form", { name: "Project details" });
+  const queueSkeleton = frame.locator("[data-react-skeleton]");
+  const formSkeleton = preview.locator("[data-react-skeleton]");
+
+  try {
+    await page.goto("/components/react", { waitUntil: "commit" });
+    await page.locator("#react-component-preview").scrollIntoViewIfNeeded();
+    for (const skeleton of [queueSkeleton, formSkeleton]) {
+      const bar = skeleton.locator(".skeleton").first();
+      await expect(bar).toBeVisible();
+      await expect(bar).not.toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+      await expect(bar).toHaveCSS("animation-name", "none");
+    }
+    await expect(form).toHaveCount(0);
+    await expect(frame.getByRole("button", { name: "Approve item" })).toHaveCount(0);
+
+  } finally {
+    releaseScripts();
+  }
+
+  await connected(page);
+  await expect(frame.getByRole("button", { name: "Approve item" })).toBeVisible();
+  await expect(queueSkeleton).toHaveCount(0);
+  await expect(form).toBeVisible();
+  await expect(formSkeleton).toBeHidden();
+  expect(errors).toEqual([]);
+});
+
+test("React form retains its skeleton while its stylesheet is loading", async ({ page }) => {
+  const errors = captureErrors(page);
+  let releaseStyles;
+  const styles = new Promise(resolve => { releaseStyles = resolve; });
+
+  // Pause the iframe document too so it cannot preload the shared stylesheet.
+  await page.route(/\/(?:previews\/react|react_preview(?:-[^/]+)?\.css)(?:\?.*)?$/, async route => {
+    await styles;
+    await route.continue();
+  });
+
+  const preview = page.locator("#react-form-preview");
+  const form = preview.getByRole("form", { name: "Project details" });
+  const skeleton = preview.locator("[data-react-skeleton]");
+
+  try {
+    await page.goto("/components/react", { waitUntil: "commit" });
+    await connected(page);
+    await expect.poll(() => preview.evaluate(el => Boolean(el.shadowRoot))).toBe(true);
+    await expect(skeleton.locator(".skeleton").first()).toBeVisible();
+    await expect(form).toHaveCount(0);
+  } finally {
+    releaseStyles();
+  }
+
+  await expect(form).toHaveCSS("display", "grid");
+  await expect(skeleton).toBeHidden();
+  expect(errors).toEqual([]);
+});
+
 test("React form mounts in LiveView, validates and submits without replacing its root", async ({ page }) => {
   const errors = captureErrors(page);
   await page.goto("/components/react");
@@ -213,6 +284,69 @@ test("use-case settings support Enter and cancel, filters recover and selection 
   await page.locator("#ask-remove").click();
   await page.locator("#cancel-remove").click();
   await expect(page.locator("#ask-remove")).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test("React Chat sends a message from the Use Cases sidebar route", async ({ page }) => {
+  const errors = captureErrors(page);
+  await page.goto("/use-cases");
+  await connected(page);
+  const menu = page.locator("#design-left-menu");
+  await menu.getByRole("link", { name: "React Chat", exact: true }).click();
+  await expect(page).toHaveURL(/\/use-cases\/react-chat$/);
+  await expect(menu.getByRole("link", { name: "React Chat", exact: true })).toHaveAttribute("aria-current", "page");
+
+  const log = page.getByRole("log", { name: "Conversation" });
+  const message = page.getByRole("textbox", { name: "Message", exact: true });
+  const send = page.getByRole("button", { name: "Send", exact: true });
+  await expect(send).toBeDisabled();
+  await message.fill("How should I review this release?");
+  await message.press("Control+Enter");
+  await expect(log).toContainText("How should I review this release?");
+  await expect(log).toContainText("open the preview in both themes");
+  await expect(message).toHaveValue("");
+  expect(errors).toEqual([]);
+});
+
+test("React Form renders the JSON Schema and sends typed values to LiveView", async ({ page }) => {
+  const errors = captureErrors(page);
+  await page.goto("/use-cases/react-form");
+  await connected(page);
+  await expect(page.locator("#design-left-menu a[aria-current='page']")).toHaveText("React Form");
+
+  const preview = page.locator("#react-form-mount");
+  const name = preview.getByRole("textbox", { name: /Project name/ });
+  const visibility = preview.getByRole("combobox", { name: /Visibility/ });
+  const updates = preview.getByRole("checkbox", { name: /Email updates/ });
+  const submit = preview.getByRole("button", { name: "Submit", exact: true });
+  const result = page.locator("#react-schema-result");
+
+  await expect(visibility.locator("option:checked")).toHaveText("Private");
+  await expect(updates).not.toBeChecked();
+  await submit.click();
+  await expect(preview.getByRole("alert")).toBeVisible();
+  await expect(name).toBeFocused();
+  await expect(result).toBeEmpty();
+
+  await name.fill("   ");
+  await submit.click();
+  await expect(preview.getByRole("alert")).toHaveText("Use between 3 and 60 characters.");
+  await name.fill("  Release review  ");
+  await visibility.selectOption({ label: "Team" });
+  await updates.check();
+  await submit.click();
+  await expect(result).toContainText("Received by LiveView");
+  const submitted = JSON.parse(await result.locator("code").textContent());
+  expect(submitted).toEqual({ name: "Release review", visibility: "Team", email_updates: true });
+  await expect(name).toHaveValue("  Release review  ");
+
+  await page.getByText("View JSON Schema", { exact: true }).click();
+  const schema = JSON.parse(await page.locator("details[open] code").textContent());
+  expect(schema.properties.visibility.enum).toEqual(["Private", "Team"]);
+  await preview.getByRole("button", { name: "Reset form" }).click();
+  await expect(name).toHaveValue("");
+  await expect(visibility.locator("option:checked")).toHaveText("Private");
+  await expect(updates).not.toBeChecked();
   expect(errors).toEqual([]);
 });
 

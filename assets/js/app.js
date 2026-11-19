@@ -10,25 +10,35 @@ synchronizeTheme();
 
 const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content");
 
-const MountReactForm = {
-  async mounted() {
-    try {
-      const { mountReactForm } = await import("./react_form.js");
-      if (this.formRemoved) return;
+function reactDemoHook(demo, event) {
+  return {
+    async mounted() {
+      const showError = () => {
+        this.el.querySelector("[role='status']").textContent = "Could not load this React demo. Refresh to retry.";
+      };
 
-      this.reactRoot = mountReactForm(this.el, values => this.pushEvent("react-form-submit", values));
-    } catch {
-      if (!this.formRemoved) {
-        this.el.querySelector("[role='status']").textContent = "Could not load the React form. Refresh to retry.";
+      try {
+        // TODO(upstream): duskmoon-dev/duskmoon-bundler#42
+        // WORKAROUND(upstream): Keep the demos in one lazy entry until hashed split imports resolve correctly.
+        const { mountReactDemo } = await import("./react_mount.js");
+        if (this.demoRemoved) return;
+
+        const props = JSON.parse(this.el.dataset.reactProps || "{}");
+        this.reactRoot = mountReactDemo(this.el, demo, {
+          ...props,
+          submit: values => this.pushEvent(event, values),
+        }, showError);
+      } catch {
+        if (!this.demoRemoved) showError();
       }
-    }
-  },
+    },
 
-  destroyed() {
-    this.formRemoved = true;
-    this.reactRoot?.unmount();
-  },
-};
+    destroyed() {
+      this.demoRemoved = true;
+      this.reactRoot?.unmount();
+    },
+  };
+}
 
 const ConfirmationDialog = {
   mounted() {
@@ -51,7 +61,14 @@ const ConfirmationDialog = {
 const liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
   params: { _csrf_token: csrfToken },
-  hooks: { ...DuskmoonHooks, AppearancePreference, MountReactForm, ConfirmationDialog },
+  hooks: {
+    ...DuskmoonHooks,
+    AppearancePreference,
+    ConfirmationDialog,
+    MountReactForm: reactDemoHook("projectForm", "react-form-submit"),
+    MountReactChat: reactDemoHook("chat", "react-chat-send"),
+    MountReactSchemaForm: reactDemoHook("schemaForm", "react-schema-submit"),
+  },
 });
 
 liveSocket.connect();

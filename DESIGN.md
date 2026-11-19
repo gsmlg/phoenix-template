@@ -422,6 +422,8 @@ non-submit buttons set `type="button"`.
   ignored mount node. The hook mounts and unmounts React, and submits through an
   explicit LiveView event. Keep the React stylesheet inside the preview document
   or shadow root so it does not override the host styles.
+- Render React preview skeletons in the initial HTML using CSS. Keep them visible
+  until the styled preview is ready, and respect reduced motion preferences.
 - LiveView owns server-connected interactions; Hologram owns browser-side
   interactions within its pages. They use separate documents and must not both
   control the same DOM subtree.

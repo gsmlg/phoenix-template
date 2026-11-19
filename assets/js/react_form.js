@@ -1,10 +1,9 @@
 import { createElement as h, useState } from "react";
-import { createRoot } from "react-dom/client";
 import { Button, Form, Input } from "@duskmoon-dev/components";
 
 const nameRules = [{ required: true, message: "Enter a project name." }];
 
-function ProjectForm({ initialName, submit }) {
+export default function ProjectForm({ initialName, submit }) {
   const [submitting, setSubmitting] = useState(false);
   const [nameError, setNameError] = useState(false);
   const [submitError, setSubmitError] = useState("");
@@ -61,17 +60,4 @@ function ProjectForm({ initialName, submit }) {
     ),
     submitError && h("div", { role: "alert", className: "form-error-list" }, submitError),
   );
-}
-
-export function mountReactForm(host, submit) {
-  const shadow = host.attachShadow({ mode: "open" });
-  const stylesheet = document.createElement("link");
-  stylesheet.rel = "stylesheet";
-  stylesheet.href = host.dataset.reactStylesheet;
-  const container = document.createElement("div");
-  shadow.append(stylesheet, container);
-
-  const root = createRoot(container);
-  root.render(h(ProjectForm, { initialName: host.dataset.projectName, submit }));
-  return root;
 }
