@@ -90,9 +90,10 @@ topic routes show only their selected topic. Settings section links patch betwee
 path routes to retain independent drafts. Legacy `?section=` bookmarks are replaced
 with their corresponding paths.
 
-React package CSS has a separate stylesheet entry and is linked only in the
-preview document, before the shared stylesheet. It must not override Phoenix styles in
-the parent document; the shared stylesheet remains authoritative for theme tokens.
+The standalone React preview loads package CSS before the shared stylesheet.
+The React form on `/components/react` loads the same package CSS inside a shadow
+root and inherits theme tokens from the host. The hook owns the form subtree,
+and LiveView validates submissions and displays the received values outside it.
 
 The settings page adapts the supplied object-settings layout: identity above a
 local section menu and content panel. General and GitHub integration use synthetic,

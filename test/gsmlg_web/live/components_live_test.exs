@@ -60,4 +60,29 @@ defmodule GsmlgWeb.ComponentsLiveTest do
 
     assert html_response(response, 200) =~ ~s(data-theme="sunshine")
   end
+
+  test "mounted React form validates its event payload before displaying it", %{conn: conn} do
+    {:ok, view, _html} = live(conn, ~p"/components/react")
+    hook = element(view, "#react-form-preview[phx-hook='MountReactForm'][phx-update='ignore']")
+
+    for values <- [
+          %{"name" => nil, "description" => ""},
+          %{"name" => "   ", "description" => ""},
+          %{"name" => "Project", "description" => String.duplicate("x", 201)}
+        ] do
+      render_hook(hook, "react-form-submit", values)
+      assert_reply(view, %{error: _})
+    end
+
+    refute has_element?(view, "#react-form-result p")
+
+    render_hook(hook, "react-form-submit", %{
+      "name" => "  Library refresh  ",
+      "description" => "  Update the sample forms.  "
+    })
+
+    assert_reply(view, %{ok: true})
+    assert has_element?(view, "#react-form-result strong", "Library refresh")
+    assert has_element?(view, "#react-form-result p", "Update the sample forms.")
+  end
 end

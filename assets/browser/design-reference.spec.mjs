@@ -104,6 +104,52 @@ test("Core, Phoenix and React execute real interactions and share both themes", 
   expect(errors).toEqual([]);
 });
 
+test("React form mounts in LiveView, validates and submits without replacing its root", async ({ page }) => {
+  const errors = captureErrors(page);
+  await page.goto("/components/react");
+  await connected(page);
+  const preview = page.locator("#react-form-preview");
+  const form = preview.getByRole("form", { name: "Project details" });
+  const name = form.getByRole("textbox", { name: /Project name/ });
+  const description = form.getByRole("textbox", { name: "Description (optional)" });
+  const submit = form.getByRole("button", { name: "Submit project" });
+  const result = page.locator("#react-form-result");
+
+  await expect(form).toHaveCSS("display", "grid");
+  await expect(name).toHaveValue("Workspace refresh");
+  await name.fill("");
+  await submit.click();
+  await expect(form.getByRole("alert")).toHaveText("Enter a project name.");
+  await expect(name).toHaveAttribute("aria-invalid", "true");
+  await expect(result).toBeEmpty();
+
+  await name.fill("  ");
+  await submit.click();
+  await expect(form.getByRole("alert")).toHaveText("Use a project name between 1 and 60 characters.");
+  await expect(result).toBeEmpty();
+
+  await name.fill("Library refresh");
+  await description.fill("Update the sample forms.");
+  await name.press("Enter");
+  await expect(result).toContainText("Received by LiveView: Library refresh");
+  await expect(result).toContainText("Update the sample forms.");
+  await expect(description).toHaveValue("Update the sample forms.");
+
+  for (const theme of ["moonlight", "sunshine"]) {
+    await selectTheme(page, theme);
+    const primary = await page.locator("html").evaluate(el => getComputedStyle(el).getPropertyValue("--color-primary"));
+    await expect.poll(() => submit.evaluate(el => getComputedStyle(el).getPropertyValue("--color-primary"))).toBe(primary);
+    await expect(name).toHaveValue("Library refresh");
+  }
+
+  await page.locator("#design-left-menu").getByRole("link", { name: "Core CSS", exact: true }).click();
+  await expect(preview).toHaveCount(0);
+  await page.goBack();
+  await expect(name).toHaveValue("Workspace refresh");
+  await expect(result).toBeEmpty();
+  expect(errors).toEqual([]);
+});
+
 test("use-case settings support Enter and cancel, filters recover and selection is cleared", async ({ page }) => {
   const errors = captureErrors(page);
   await page.goto("/use-cases");

@@ -48,6 +48,7 @@ defmodule GsmlgWeb.ComponentsLive do
        core_count: 0,
        preview_label: "Release checklist",
        progress: 0,
+       submitted_project: nil,
        snippets: @snippets
      )}
   end
@@ -74,7 +75,7 @@ defmodule GsmlgWeb.ComponentsLive do
 
         :react ->
           {"react", "React components",
-           "Explore the React adapter in an isolated document with the shared theme."}
+           "Try a standalone React preview and a React form mounted in LiveView."}
       end
 
     {:noreply, assign(socket, current_page: page, page_title: title, description: description)}
@@ -101,6 +102,28 @@ defmodule GsmlgWeb.ComponentsLive do
 
   def handle_event("preview-reset", _params, socket) do
     {:noreply, assign(socket, progress: 0, preview_label: "Release checklist")}
+  end
+
+  def handle_event("react-form-submit", %{"name" => name, "description" => description}, socket)
+      when is_binary(name) and is_binary(description) do
+    name = String.trim(name)
+    description = String.trim(description)
+
+    cond do
+      String.length(name) not in 1..60 ->
+        {:reply, %{error: "Use a project name between 1 and 60 characters."}, socket}
+
+      String.length(description) > 200 ->
+        {:reply, %{error: "Keep the description within 200 characters."}, socket}
+
+      true ->
+        {:reply, %{ok: true},
+         assign(socket, submitted_project: %{name: name, description: description})}
+    end
+  end
+
+  def handle_event("react-form-submit", _params, socket) do
+    {:reply, %{error: "Enter a project name and try again."}, socket}
   end
 
   def handle_event("theme_changed", _params, socket), do: {:noreply, socket}
@@ -349,9 +372,7 @@ defmodule GsmlgWeb.ComponentsLive do
               <p class="design-eyebrow">04 / Client-side application state</p>
               <h2 id="react-title" class="design-section-heading">React components</h2>
               <p class="mt-3 text-on-surface-variant">
-                Use the React adapter for React applications. This is a running React
-                preview with its own state and document, sharing the same theme and Core
-                styles. It does not mount into LiveView's DOM.
+                Try a self-contained approval queue and a project form that submits to LiveView.
               </p>
             </div>
             <a href="https://github.com/duskmoon-dev/duskmoon-react" class="link text-sm text-primary">
@@ -373,10 +394,37 @@ defmodule GsmlgWeb.ComponentsLive do
               <pre class="design-code"><code>{@snippets.react}</code></pre>
             </details>
           </div>
-          <p class="text-sm text-on-surface-variant">
-            The preview uses Components 0.5.5 with React 19, a compatible cohort for this
-            template's Core version. These are runnable examples, not an exhaustive catalog.
-          </p>
+          <section aria-labelledby="react-form-title" class="design-preview">
+            <div class="design-preview-body space-y-4">
+              <div>
+                <h3 id="react-form-title" class="text-lg font-semibold">React form in LiveView</h3>
+                <p class="mt-1 text-sm text-on-surface-variant">
+                  Submit sample project details to see what LiveView receives. Reloading clears the result.
+                </p>
+              </div>
+              <div
+                id="react-form-preview"
+                phx-hook="MountReactForm"
+                phx-update="ignore"
+                data-project-name="Workspace refresh"
+                data-react-stylesheet={
+                  DuskmoonBundler.static_path(GsmlgWeb.Endpoint, "/assets/css/react_preview.css",
+                    profile: :gsmlg
+                  )
+                }
+              >
+                <p role="status">Loading React form…</p>
+              </div>
+              <div id="react-form-result" role="status" class="break-words text-sm">
+                <p :if={@submitted_project}>
+                  Received by LiveView: <strong>{@submitted_project.name}</strong>
+                </p>
+                <p :if={@submitted_project && @submitted_project.description != ""}>
+                  {@submitted_project.description}
+                </p>
+              </div>
+            </div>
+          </section>
         </section>
       </div>
     </Layouts.app>

@@ -415,9 +415,11 @@ non-submit buttons set `type="button"`.
 
 ## 8. Renderer and State Boundaries
 
-- The React example runs in an isolated same-origin document with its own bundle.
-  Import React components from `@duskmoon-dev/components`; its theme follows the
-  parent document. Do not mount React into LiveView-managed DOM.
+- The standalone React preview runs in an isolated same-origin document and follows
+  the parent theme. A React form embedded in LiveView owns the children of its
+  ignored mount node. The hook mounts and unmounts React, and submits through an
+  explicit LiveView event. Keep the React stylesheet inside the preview document
+  or shadow root so it does not override the host styles.
 - LiveView owns server-connected interactions; Hologram owns browser-side
   interactions within its pages. They use separate documents and must not both
   control the same DOM subtree.
@@ -563,7 +565,8 @@ These paths refer to the matching source checkout, not separately published page
 
 - Shared shell: `lib/gsmlg_web/components/layouts.ex` and `lib/gsmlg_web/components/layouts/root.html.heex`.
 - Styles and browser setup: `assets/css/app.css`, `assets/js/app.js`, and `assets/js/theme.js`.
-- Component examples: `lib/gsmlg_web/live/components_live.ex` and `assets/js/react_preview.js`.
+- Component examples: `lib/gsmlg_web/live/components_live.ex`,
+  `assets/js/react_preview.js`, and `assets/js/react_form.js`.
 - Workflow examples: `lib/gsmlg_web/live/use_cases_live.ex` and `lib/gsmlg_web/live/session_live.ex`.
 - Settings page composition: `lib/gsmlg_web/live/settings_live.ex`.
 - Browser-local renderer: `lib/gsmlg_web/hologram/layout.ex`.
