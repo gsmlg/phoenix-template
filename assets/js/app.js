@@ -30,10 +30,28 @@ const MountReactForm = {
   },
 };
 
+const ConfirmationDialog = {
+  mounted() {
+    this.cancelOnEscape = event => {
+      event.preventDefault();
+      this.js().push(this.el, "cancel_remove");
+    };
+    this.el.addEventListener("cancel", this.cancelOnEscape);
+    this.el.showModal();
+  },
+
+  destroyed() {
+    this.el.removeEventListener("cancel", this.cancelOnEscape);
+    this.el.close();
+    const focusTarget = this.el.ownerDocument.querySelector(this.el.dataset.returnFocus);
+    focusTarget?.focus({ preventScroll: true });
+  },
+};
+
 const liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
   params: { _csrf_token: csrfToken },
-  hooks: { ...DuskmoonHooks, AppearancePreference, MountReactForm },
+  hooks: { ...DuskmoonHooks, AppearancePreference, MountReactForm, ConfirmationDialog },
 });
 
 liveSocket.connect();

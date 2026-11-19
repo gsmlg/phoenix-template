@@ -186,6 +186,8 @@ defmodule GsmlgWeb.UseCasesLive do
             <.link navigate={~p"/use-cases/records"} class="link">Record browser</.link>
             <.link navigate={~p"/use-cases/confirmation"} class="link">Confirmation</.link>
             <.link navigate={~p"/use-cases/progress"} class="link">Job progress</.link>
+            <.link navigate={~p"/use-cases/react-chat"} class="link">React Chat</.link>
+            <.link navigate={~p"/use-cases/react-form"} class="link">React Form</.link>
           </nav>
         </header>
 
@@ -415,39 +417,61 @@ defmodule GsmlgWeb.UseCasesLive do
                     A synthetic saved view for this example.
                   </p>
                 </div>
-                <.dm_btn
-                  :if={!@confirming}
+                <button
                   id="ask-remove"
+                  type="button"
                   phx-click="ask_remove"
-                  variant="outline"
+                  aria-haspopup="dialog"
+                  class="btn btn-outline"
                 >
                   Remove saved view
-                </.dm_btn>
+                </button>
               </div>
-              <section
+              <.dm_modal
                 :if={@confirming}
                 id="confirm-panel"
-                aria-labelledby="confirm-title"
-                class="mt-5 rounded-xl border border-outline bg-surface-container p-5 text-on-surface"
+                size="sm"
+                hide_close
+                aria-describedby="confirm-description"
+                phx-hook="ConfirmationDialog"
+                data-return-focus="#ask-remove, #restore-item"
               >
-                <h3 id="confirm-title" class="font-semibold">Remove Weekly review?</h3>
-                <p class="mt-2 text-sm text-on-surface-variant">
-                  This removes the saved view from this preview only. You can restore it after removal.
-                </p>
-                <div class="mt-4 flex flex-wrap gap-3">
-                  <.dm_btn id="cancel-remove" phx-click="cancel_remove" variant="ghost">
-                    Keep saved view
-                  </.dm_btn>
-                  <.dm_btn id="confirm-remove" phx-click="confirm_remove" variant="error">
+                <:title>Remove Weekly review?</:title>
+                <:body>
+                  <p id="confirm-description">
+                    This removes the saved view from this preview. You can restore it afterward.
+                  </p>
+                </:body>
+                <:footer>
+                  <button
+                    id="cancel-remove"
+                    type="button"
+                    phx-click="cancel_remove"
+                    class="btn btn-ghost"
+                    autofocus
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    id="confirm-remove"
+                    type="button"
+                    phx-click="confirm_remove"
+                    class="btn btn-error"
+                  >
                     Remove saved view
-                  </.dm_btn>
-                </div>
-              </section>
+                  </button>
+                </:footer>
+              </.dm_modal>
               <div :if={@removed} id="removed-item" role="status">
                 <.dm_alert variant="success">Weekly review was removed from this preview.</.dm_alert>
-                <.dm_btn id="restore-item" class="mt-4" phx-click="restore" variant="outline">
+                <button
+                  id="restore-item"
+                  type="button"
+                  class="btn btn-outline mt-4"
+                  phx-click="restore"
+                >
                   Restore saved view
-                </.dm_btn>
+                </button>
               </div>
             </div>
             <div class="border-t border-outline-variant px-6 py-4 text-sm text-on-surface-variant">

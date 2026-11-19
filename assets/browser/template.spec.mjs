@@ -158,13 +158,13 @@ test("UI recipes support validation, cancel/retry, search recovery and progress"
   await expect(page.locator("#empty-results")).toBeVisible();
   await page.locator("#search-query").fill("");
   await expect(page.locator("#empty-results")).toHaveCount(0);
-  await page.locator("#ask-remove").getByRole("button").click();
-  await page.locator("#cancel-remove").getByRole("button").click();
+  await page.locator("#ask-remove").click();
+  await page.locator("#cancel-remove").click();
   await expect(page.locator("#removed-item")).toHaveCount(0);
-  await page.locator("#ask-remove").getByRole("button").click();
-  await page.locator("#confirm-remove").getByRole("button").click();
+  await page.locator("#ask-remove").click();
+  await page.locator("#confirm-remove").click();
   await expect(page.locator("#removed-item")).toBeVisible();
-  await page.locator("#restore-item").getByRole("button").click();
+  await page.locator("#restore-item").click();
   for (let step = 1; step <= 4; step++) {
     await page.locator("#advance-progress").getByRole("button").click();
     await expect(page.locator("#demo-progress")).toHaveAttribute("aria-valuenow", String(step * 25));

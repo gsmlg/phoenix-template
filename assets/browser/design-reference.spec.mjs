@@ -210,9 +210,48 @@ test("use-case settings support Enter and cancel, filters recover and selection 
   await expect(page.locator("#result-count")).toHaveText("3 workspaces");
   await expect(page.locator("#search-status")).toHaveValue("all");
   await selectTheme(page, "moonlight");
-  await action(page, "ask-remove").click();
-  await action(page, "cancel-remove").click();
+  await page.locator("#ask-remove").click();
+  await page.locator("#cancel-remove").click();
   await expect(page.locator("#ask-remove")).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test("Confirmation opens a native modal and returns focus after dismissal", async ({ page }) => {
+  const errors = captureErrors(page);
+  await page.goto("/use-cases/confirmation");
+  await connected(page);
+  const trigger = page.locator("#ask-remove");
+  const dialog = page.getByRole("dialog", { name: "Remove Weekly review?" });
+  const cancel = dialog.getByRole("button", { name: "Cancel" });
+  const restore = page.locator("#restore-item");
+
+  await expect(dialog).toHaveCount(0);
+  await trigger.click();
+  await expect(dialog).toBeVisible();
+  await expect(dialog).toHaveAccessibleDescription(/You can restore it afterward/);
+  await expect(page.locator("dialog#confirm-panel:modal")).toHaveCount(1);
+  await expect(cancel).toBeFocused();
+  await trigger.evaluate(el => el.focus());
+  await expect(cancel).toBeFocused();
+
+  await page.keyboard.press("Escape");
+  await expect(dialog).toHaveCount(0);
+  await expect(trigger).toBeFocused();
+  await expect(restore).toHaveCount(0);
+
+  await trigger.click();
+  await cancel.click();
+  await expect(dialog).toHaveCount(0);
+  await expect(trigger).toBeFocused();
+  await expect(restore).toHaveCount(0);
+
+  await trigger.click();
+  await dialog.getByRole("button", { name: "Remove saved view" }).click();
+  await expect(dialog).toHaveCount(0);
+  await expect(page.locator("#removed-item")).toContainText("Weekly review was removed");
+  await expect(restore).toBeFocused();
+  await restore.click();
+  await expect(trigger).toBeVisible();
   expect(errors).toEqual([]);
 });
 

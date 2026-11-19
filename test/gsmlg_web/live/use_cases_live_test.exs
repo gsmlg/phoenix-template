@@ -77,7 +77,7 @@ defmodule GsmlgWeb.UseCasesLiveTest do
     refute has_element?(view, "#removed-item")
 
     view |> element("#ask-remove") |> render_click()
-    assert has_element?(view, "#confirm-panel", "Remove Weekly review?")
+    assert has_element?(view, "dialog#confirm-panel", "Remove Weekly review?")
     view |> element("#cancel-remove") |> render_click()
     refute has_element?(view, "#confirm-panel")
     refute has_element?(view, "#removed-item")
