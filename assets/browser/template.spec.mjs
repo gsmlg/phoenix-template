@@ -52,6 +52,7 @@ test("session counter is shared across tabs but isolated across browser contexts
 test("Hologram runtime executes client-side actions and inherits theme", async ({ page, context }) => {
   const errors = [];
   const assets = [];
+  await page.setViewportSize({ width: 1440, height: 1000 });
   page.on("pageerror", error => errors.push(error.message));
   page.on("response", response => {
     if (["stylesheet", "script"].includes(response.request().resourceType())) assets.push(response);
@@ -64,6 +65,9 @@ test("Hologram runtime executes client-side actions and inherits theme", async (
   await expect.poll(async () => (await context.cookies()).find(cookie => cookie.name === "gsmlg_theme")?.value).toBe("moonlight");
   await page.goto("/hologram-demo");
   await expect(page.locator("html")).toHaveAttribute("data-theme", "moonlight");
+  await expect.poll(() => page.locator(".design-footer").evaluate(footer =>
+    Math.round(footer.getBoundingClientRect().bottom - window.innerHeight)
+  )).toBe(0);
   await expect(page.locator("#hologram-count")).toHaveText("0");
   // Complete a client-side action before going offline, rather than racing
   // runtime initialization or relying only on server-rendered markup.

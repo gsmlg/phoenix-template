@@ -84,7 +84,8 @@ a, button, input, select, summary, [tabindex] { outline-offset: 4px; }
 .design-left-menu a { display: flex; align-items: center; gap: .75rem; color: inherit; }
 .design-left-menu[data-collapsed="true"] a { justify-content: center; padding-inline: .5rem; }
 .design-left-menu a:hover, .design-left-menu a[aria-current="page"] { background: var(--color-primary-container); color: var(--color-on-primary-container); }
-.design-workspace { min-width: 0; background: var(--color-surface); }
+.design-workspace { min-width: 0; align-self: stretch; display: flex; flex-direction: column; background: var(--color-surface); }
+.design-workspace > main { flex: 1 0 auto; }
 .design-topbar { min-height: 3rem; display: flex; align-items: center; padding: .75rem 2.5rem; border-bottom: 1px solid var(--color-outline-variant); }
 .design-breadcrumb { display: flex; align-items: center; gap: .85rem; font-size: .75rem; color: var(--color-on-surface-variant); }
 .design-breadcrumb span:last-child { color: var(--color-on-surface); font-weight: 600; }

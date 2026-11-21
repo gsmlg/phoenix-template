@@ -197,8 +197,10 @@ application pages:
 - In the application Appbar, place navigation beside the brand on the left,
   as in Backplane. Keep utility actions on the right and omit theme controls.
 - On introduction pages, keep the appbar at the top while scrolling and the
-  desktop left menu below it. Keep breadcrumbs inside the content area; do not use them in place of
-  the appbar. Place the footer below content; Appearance owns theme preferences.
+  desktop left menu below it. Keep breadcrumbs inside the content area and
+  keep the appbar available above them.
+  Place the footer at the bottom of the viewport on short pages and after the
+  content on longer pages. Appearance owns theme preferences.
 - Identify the current section in the appbar and the current page in the left
   menu. Every left-menu destination has its own path route and renders its
   corresponding content. Do not substitute hash anchors or query selectors for
