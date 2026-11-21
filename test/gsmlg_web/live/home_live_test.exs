@@ -40,7 +40,7 @@ defmodule GsmlgWeb.HomeLiveTest do
       {:ok, view, _html} = live(conn, path)
       assert has_element?(view, "#design-appbar nav a[aria-current='page']", label)
       assert has_element?(view, "#design-left-menu[aria-label='#{label} navigation']")
-      assert has_element?(view, "#design-left-menu a[href='#{destination}']")
+      assert has_element?(view, "#design-left-menu .nested-menu > li > a[href='#{destination}']")
       refute has_element?(view, ".design-shell-home")
     end
   end

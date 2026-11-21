@@ -88,24 +88,20 @@ defmodule GsmlgWeb.Layouts do
           storage_key="gsmlg.navigation.collapsed"
         >
           <:title>{section_title(@active)}</:title>
-          <:menu>
-            <ul>
-              <li :for={{id, label, path, icon} <- @section_links}>
-                <.dm_tooltip :let={attrs} id={"design-menu-#{id}"} content={label} position="right">
-                  <.link
-                    {attrs}
-                    navigate={if id != "hologram", do: path}
-                    href={if id == "hologram", do: path}
-                    aria-label={label}
-                    aria-current={if((@page || @active) == id, do: "page")}
-                    class={(@page || @active) == id && "nested-menu-active"}
-                  >
-                    <.dm_mdi name={icon} class="size-5 shrink-0" />
-                    <span data-left-menu-label>{label}</span>
-                  </.link>
-                </.dm_tooltip>
-              </li>
-            </ul>
+          <:menu :for={{id, label, path, icon} <- @section_links}>
+            <.dm_tooltip :let={attrs} id={"design-menu-#{id}"} content={label} position="right">
+              <.link
+                {attrs}
+                navigate={if id != "hologram", do: path}
+                href={if id == "hologram", do: path}
+                aria-label={label}
+                aria-current={if((@page || @active) == id, do: "page")}
+                class={(@page || @active) == id && "nested-menu-active"}
+              >
+                <.dm_mdi name={icon} class="size-5 shrink-0" />
+                <span data-left-menu-label>{label}</span>
+              </.link>
+            </.dm_tooltip>
           </:menu>
         </.dm_left_menu>
         <div class="design-workspace">
