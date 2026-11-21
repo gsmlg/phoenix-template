@@ -87,7 +87,8 @@ The reference pages use LiveView for server-connected interaction. `/hologram-de
 uses DuskMoon Hologram for browser-side Elixir. Separate documents prevent the
 two renderers from competing for the same DOM. The Hologram document shares the
 DuskMoon stylesheet but does not load the LiveView JavaScript entry point.
-Counter examples keep transient state; they are not persisted business features.
+The Hologram counter saves its value in browser storage across navigation and
+reloads. The LiveView session counter demonstrates live updates across tabs.
 Development and production Hologram builds share generated static output. After
 a production build, restart `mix dev` before browser verification so its runtime
 manifest and generated files match again.

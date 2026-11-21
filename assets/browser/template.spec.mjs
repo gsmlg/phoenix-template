@@ -77,9 +77,13 @@ test("Hologram runtime executes client-side actions and inherits theme", async (
   try {
     await page.locator("#hologram-increment").click();
     await expect(page.locator("#hologram-count")).toHaveText("2");
+    await expect.poll(() => page.evaluate(() => localStorage.getItem("gsmlg.hologram.counter"))).toBe("2");
     await page.locator("#hologram-reset").click();
     await expect(page.locator("#hologram-count")).toHaveText("0");
   } finally { await context.setOffline(false); }
+  await page.reload();
+  await expect(page.locator("#hologram-increment")).toBeEnabled();
+  await expect(page.locator("#hologram-count")).toHaveText("0");
   expect(assets.filter(response => !response.ok() && response.status() !== 304).map(response => response.url())).toEqual([]);
   expect(errors).toEqual([]);
 });
@@ -103,18 +107,22 @@ test("LiveView reconnects without losing session state", async ({ page, context 
   await expect(page.locator("#counter")).toHaveText("2");
 });
 
-test("navigation between renderers and browser history preserve LiveView state", async ({ page }) => {
+test("navigation and reload preserve each renderer's counter", async ({ page }) => {
   await page.goto("/use-cases/session");
   await expect.poll(() => page.evaluate(() => window.liveSocket?.isConnected())).toBe(true);
   await page.locator("#increment").click();
   await expect(page.locator("#counter")).toHaveText("1");
   await page.locator("#hologram-demo-link").click();
   await expect(page.locator("#hologram-count")).toHaveText("0");
+  await page.locator("#hologram-increment").click();
+  await expect(page.locator("#hologram-count")).toHaveText("1");
   await page.goBack();
   await expect.poll(() => page.evaluate(() => window.liveSocket?.isConnected())).toBe(true);
   await expect(page.locator("#counter")).toHaveText("1");
   await page.goForward();
-  await expect(page.locator("#hologram-count")).toHaveText("0");
+  await expect(page.locator("#hologram-count")).toHaveText("1");
+  await page.reload();
+  await expect(page.locator("#hologram-count")).toHaveText("1");
 });
 
 
