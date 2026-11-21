@@ -8,7 +8,7 @@ defmodule GsmlgWeb.Hologram.LeftMenu do
     items =
       for {id, label, path, icon} <- GsmlgWeb.Layouts.section_links("use-cases") do
         icon_paths =
-          Regex.scan(~r/\bd="([^"]+)"/, PhoenixDuskmoon.Component.Icon.Icons.get_mdi_svg(icon),
+          Regex.scan(~r/\bd="([^"]+)"/, DuskmoonPhoenix.Component.Icon.Icons.get_mdi_svg(icon),
             capture: :all_but_first
           )
           |> List.flatten()

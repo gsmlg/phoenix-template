@@ -168,7 +168,10 @@ defmodule GsmlgWeb.ComponentsLive do
                 example, LiveView supplies the counter behavior.
               </p>
             </div>
-            <a href="https://github.com/duskmoon-dev/duskmoonui" class="link text-sm text-primary">
+            <a
+              href="https://github.com/duskmoon-dev/duskmoon-web/tree/v2.0.0-rc.3/packages/css/core"
+              class="link text-sm text-primary"
+            >
               Core source <span aria-hidden="true">↗</span>
             </a>
           </div>
@@ -228,20 +231,12 @@ defmodule GsmlgWeb.ComponentsLive do
               </p>
             </div>
             <a
-              href="https://github.com/duskmoon-dev/duskmoon-elements"
+              href="https://github.com/duskmoon-dev/duskmoon-web/tree/v2.0.0-rc.3/packages/elements/elements"
               class="link text-sm text-primary"
             >
               Elements source <span aria-hidden="true">↗</span>
             </a>
           </div>
-          <%!-- TODO(upstream): duskmoon-dev/duskmoon-elements#90 --%>
-          <p id="elements-known-issue" class="mb-5 text-sm text-on-surface-variant" role="note">
-            Preview limitation: the current input loses focus before typing. Interactive
-            input acceptance is pending <a
-              class="link"
-              href="https://github.com/duskmoon-dev/duskmoon-elements/issues/90"
-            >upstream issue #90</a>.
-          </p>
           <div class="design-preview">
             <div id="elements-preview" phx-update="ignore" class="design-preview-body">
               <el-dm-card padding="lg" class="block w-full max-w-xl">
@@ -291,7 +286,7 @@ defmodule GsmlgWeb.ComponentsLive do
               </p>
             </div>
             <a
-              href="https://github.com/duskmoon-dev/phoenix-duskmoon-ui"
+              href="https://github.com/duskmoon-dev/duskmoon-web/tree/v2.0.0-rc.3/phoenix/apps/duskmoon_phoenix"
               class="link text-sm text-primary"
             >
               Phoenix source <span aria-hidden="true">↗</span>
@@ -375,7 +370,10 @@ defmodule GsmlgWeb.ComponentsLive do
                 Try a self-contained approval queue and a project form that submits to LiveView.
               </p>
             </div>
-            <a href="https://github.com/duskmoon-dev/duskmoon-react" class="link text-sm text-primary">
+            <a
+              href="https://github.com/duskmoon-dev/duskmoon-web/tree/v2.0.0-rc.3/packages/react/components"
+              class="link text-sm text-primary"
+            >
               React source <span aria-hidden="true">↗</span>
             </a>
           </div>

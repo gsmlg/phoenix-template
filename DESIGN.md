@@ -49,7 +49,7 @@ code comments, identifiers, examples, and developer-facing messages.
 
 ## 2. Components and Asset Entry Points
 
-Prefer `dm_*` components from `PhoenixDuskmoon.Component`, shared layouts, and
+Prefer `dm_*` components from `DuskmoonPhoenix.Component`, shared layouts, and
 existing application patterns. Check the installed dependency's attributes and
 slots before using a component. Do not infer APIs from another version or UI library.
 
@@ -69,8 +69,8 @@ registerAll();
 - Individual packages used internally by the aggregate package are transitive
   dependencies. Preserve their normal installation and locking; do not manually
   remove their lockfile entries.
-- Load CSS through the plugin, themes, and components entry points of
-  `@duskmoon-dev/core`. Use `assets/css/app.css` as the source for exact paths.
+- Use the `@duskmoon-dev/core` plugin and themes with `duskmoon_phoenix/css`.
+  Use `assets/css/app.css` as the source for exact paths.
   Do not introduce a second UI framework or a parallel component library.
 - LiveView hooks and custom element registration have separate responsibilities;
   neither replaces the other.

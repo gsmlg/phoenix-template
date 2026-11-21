@@ -2,13 +2,21 @@ defmodule GsmlgWeb.HomeLiveTest do
   use GsmlgWeb.ConnCase
   import Phoenix.LiveViewTest
 
-  test "introduces five repositories and the reference navigation", %{conn: conn} do
+  test "introduces the design layers and reference navigation", %{conn: conn} do
     {:ok, view, _html} = live(conn, ~p"/")
     assert has_element?(view, "h1", "One design language.")
 
-    for repository <- Gsmlg.DesignCatalog.repositories() do
-      assert has_element?(view, "a[href='#{Gsmlg.DesignCatalog.repository_url(repository)}']")
+    for layer <- Gsmlg.DesignCatalog.layers() do
+      assert has_element?(
+               view,
+               "#repository-#{layer.id} a[href='#{Gsmlg.DesignCatalog.source_url(layer)}']"
+             )
     end
+
+    assert has_element?(
+             view,
+             "#repositories a[href='https://github.com/duskmoon-dev/duskmoon-web']"
+           )
 
     for path <- ["/", "/guidelines", "/components", "/use-cases"] do
       assert has_element?(view, "nav[aria-label='Main navigation'] a[href='#{path}']")

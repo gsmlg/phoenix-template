@@ -2,11 +2,11 @@
 @plugin "@duskmoon-dev/core/plugin";
 @import "@duskmoon-dev/core/themes/sunshine";
 @import "@duskmoon-dev/core/themes/moonlight";
-@import "@duskmoon-dev/core/components";
+@import "duskmoon_phoenix/css";
 
 @source "../js";
 @source "../../lib/gsmlg_web";
-@source "../../deps/phoenix_duskmoon/lib/phoenix_duskmoon/";
+@source "../../deps/duskmoon_phoenix/lib/duskmoon_phoenix/";
 
 @custom-variant phx-click-loading (.phx-click-loading&, .phx-click-loading &);
 @custom-variant phx-submit-loading (.phx-submit-loading&, .phx-submit-loading &);

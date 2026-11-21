@@ -1,8 +1,25 @@
 # Validation status
 
-The sections dated 2026-11-11 and 2026-11-12 below are historical checkpoints.
-Design-reference v1 evidence is recorded in the 2026-11-14 section.
-The 2026-11-15 section records the subsequent page architecture changes.
+## Duskmoon Web 2.0.0-rc.3 (2026-11-21)
+
+- `mix setup`, `mix precommit` (45 ExUnit tests), `mix assets.deploy`, and the
+  dependency lock checks passed.
+- Desktop Chrome DevTools verified the homepage document, CSS, JavaScript, and
+  LiveView WebSocket at `http://localhost:4444/`. The homepage and component
+  previews loaded without browser console errors.
+- The Elements input kept its focus while typing and its value across an unrelated
+  LiveView counter update, resolving the preview blocker documented in
+  [Elements issue #90](https://github.com/duskmoon-dev/duskmoon-elements/issues/90).
+- Sunshine and moonlight toggling, sidebar collapse and expansion, the native
+  Phoenix progress action, the isolated React preview, React JSON Schema form
+  submission, and Hologram sidebar icons were verified in desktop Chrome.
+- `npm test` passed 13 of 14 tests. The existing pre-paint theme test evaluates
+  the first inline script in `root.html.heex`, which contains an HEEx expression
+  for the sidebar bootstrap.
+- Hex reported the existing `phoenix_live_view` 1.2.13 advisory
+  [EEF-CVE-2026-126334](https://osv.dev/vulnerability/EEF-CVE-2026-126334).
+
+## Historical checkpoints
 
 This checkout continues the reconstructed implementation at `5f8b068`. The
 original pre-reset uncommitted implementation was not recovered. It is a

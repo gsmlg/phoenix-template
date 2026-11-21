@@ -3,7 +3,7 @@ defmodule GsmlgWeb.HomeLive do
   alias Gsmlg.DesignCatalog
 
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, page_title: "Overview", repositories: DesignCatalog.repositories())}
+    {:ok, assign(socket, page_title: "Overview", layers: DesignCatalog.layers())}
   end
 
   def handle_event("theme_changed", _params, socket), do: {:noreply, socket}
@@ -23,9 +23,9 @@ defmodule GsmlgWeb.HomeLive do
             <.link navigate={~p"/components"} class="btn btn-primary">Explore components →</.link>
             <.link navigate={~p"/guidelines"} class="design-home-source">Read the guidelines</.link>
           </div>
-          <nav class="design-home-layers" aria-label="DuskMoon repository layers">
-            <a :for={repo <- @repositories} href={DesignCatalog.repository_url(repo)}>
-              {repo.name} <span aria-hidden="true">↗</span>
+          <nav class="design-home-layers" aria-label="Duskmoon design layers">
+            <a :for={layer <- @layers} href={DesignCatalog.source_url(layer)}>
+              {layer.name} <span aria-hidden="true">↗</span>
             </a>
           </nav>
         </section>
@@ -67,21 +67,21 @@ defmodule GsmlgWeb.HomeLive do
           <div class="design-section-heading">
             <div>
               <p class="design-eyebrow">THE ECOSYSTEM</p><h2 id="repositories-title">
-                Five repositories. Clear responsibilities.
+                Design foundations and Duskmoon Web
               </h2>
-            </div><a href="https://github.com/duskmoon-dev" class="design-text-link">View organization ↗</a>
+            </div><a href="https://github.com/duskmoon-dev/duskmoon-web" class="design-text-link">View Duskmoon Web ↗</a>
           </div>
           <div class="design-repo-list">
-            <article :for={repo <- @repositories} id={"repository-#{repo.id}"} class="design-repo-row">
-              <span class="design-stack-index">{repo.number}</span>
+            <article :for={layer <- @layers} id={"repository-#{layer.id}"} class="design-repo-row">
+              <span class="design-stack-index">{layer.number}</span>
               <div>
                 <h3>
-                  <a href={DesignCatalog.repository_url(repo)}>duskmoon-dev/{repo.repository}</a>
-                </h3><code class="design-package">{repo.package}</code>
+                  <a href={DesignCatalog.source_url(layer)}>{layer.name}</a>
+                </h3><code class="design-package">{layer.package}</code>
               </div>
-              <p>{repo.description}</p>
-              <a href={repo.demo} class="design-text-link">Explore
-              <span class="sr-only">{repo.name}</span>
+              <p>{layer.description}</p>
+              <a href={layer.demo} class="design-text-link">Explore
+              <span class="sr-only">{layer.name}</span>
               →</a>
             </article>
           </div>

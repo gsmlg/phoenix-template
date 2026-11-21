@@ -55,8 +55,8 @@ defmodule GsmlgWeb do
     quote do
       use Gettext, backend: GsmlgWeb.Gettext
       import Phoenix.HTML
-      use PhoenixDuskmoon.Component
-      use PhoenixDuskmoon.ArtComponent
+      use DuskmoonPhoenix.Component
+      use DuskmoonPhoenix.ArtComponent
       alias GsmlgWeb.Layouts
       alias Phoenix.LiveView.JS
       unquote(verified_routes())

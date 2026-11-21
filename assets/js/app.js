@@ -3,7 +3,7 @@ import { AppearancePreference, synchronizeTheme } from "./theme.js";
 import "phoenix_html";
 import { Socket } from "phoenix";
 import { LiveSocket } from "phoenix_live_view";
-import * as DuskmoonHooks from "phoenix_duskmoon/hooks";
+import * as DuskmoonHooks from "duskmoon_phoenix/hooks";
 
 registerAll();
 synchronizeTheme();

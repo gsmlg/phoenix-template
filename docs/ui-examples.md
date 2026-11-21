@@ -1,7 +1,7 @@
-# Phoenix DuskMoon recipes
+# Duskmoon Phoenix recipes
 
 Open `/use-cases` from **Use Cases** in the reference navigation. `/ui` remains a compatibility redirect. The examples
-use PhoenixDuskmoon components imported through `GsmlgWeb`, not a separate UI kit.
+use `DuskmoonPhoenix.Component` through `GsmlgWeb`.
 
 | Scenario | Components | State and behavior |
 | --- | --- | --- |
@@ -38,13 +38,13 @@ not authorization. Keep cancellation and repeated actions covered by tests.
 
 ## Runtime wiring and API evidence
 
-`assets/js/app.js` registers all elements through `@duskmoon-dev/elements` as well as
-Phoenix DuskMoon's LiveView hooks. Native form inputs, cards, badges and progress
-use the Core stylesheet. Adding a hook alone does not register a custom element.
+`assets/js/app.js` registers all elements through `@duskmoon-dev/elements` and
+loads native LiveView hooks from `duskmoon_phoenix/hooks`. Native form inputs,
+cards, badges, and progress use the Core styles included in `duskmoon_phoenix/css`.
 
-The component attributes and slots used here were checked against upstream source
-at `b115f533c24587c0b6ea8ca1ec3598d9e782863a`:
-https://github.com/duskmoon-dev/phoenix-duskmoon-ui/tree/b115f533c24587c0b6ea8ca1ec3598d9e782863a/apps/phoenix_duskmoon/lib/phoenix_duskmoon/component
+See the [Duskmoon Phoenix component source](https://github.com/duskmoon-dev/duskmoon-web/tree/v2.0.0-rc.3/phoenix/apps/duskmoon_phoenix/lib/duskmoon_phoenix/component)
+for attributes and slots. The [consumer skill](https://github.com/duskmoon-dev/duskmoon-web/tree/v2.0.0-rc.3/skills/duskmoon-phoenix)
+covers setup and optional integrations.
 
 This is a starter set, not a claim of exhaustive component coverage. Dialog,
 upload, data-grid, rich editor and async backend examples require their own
@@ -55,5 +55,4 @@ application contracts and integration tests.
 `test/gsmlg_web/live/use_cases_live_test.exs` covers invalid/valid/resubmitted forms,
 search recovery, cancel-confirm-restore and bounded progress. The Playwright
 recipe exercises custom elements in the browser, reload state and runtime errors.
-The current validation results and the separate Elements input blocker are recorded
-in [validation status](validation.md).
+The current validation results are recorded in [validation status](validation.md).

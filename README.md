@@ -23,7 +23,7 @@ the left menu opens topics and related examples.
 
 | Page | Purpose |
 | --- | --- |
-| `/` | Introduces the five DuskMoon repositories and their roles |
+| `/` | Introduces the design foundations and Duskmoon Web packages |
 | `/guidelines` | Shared specification, semantic token examples, and exact Markdown download |
 | `/components` | Actual Core, Elements, Phoenix, and isolated React previews |
 | `/use-cases` | Validated settings, filtered records, confirmation, and progress |
@@ -35,8 +35,8 @@ the left menu opens topics and related examples.
 `X-Design-Spec-SHA256` header. Consumer-source revisions and adaptation boundaries
 are recorded in [design reference sources](docs/design-reference-sources.md).
 
-The first edition remains under validation. The Elements input preview is blocked
-by [upstream issue #90](https://github.com/duskmoon-dev/duskmoon-elements/issues/90).
+Core, Elements, React components, and both the Hex and npm distributions of
+`duskmoon_phoenix` use [Duskmoon Web 2.0.0-rc.3](https://github.com/duskmoon-dev/duskmoon-web/releases/tag/v2.0.0-rc.3).
 See [validation status](docs/validation.md) for current evidence and historical checks.
 
 ## Development

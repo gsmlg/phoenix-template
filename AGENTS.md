@@ -28,6 +28,8 @@ code comments, identifiers, examples, and developer-facing messages.
 
 - Follow [DESIGN.md](DESIGN.md) for UI layout, components, themes, interaction,
   accessibility, and acceptance criteria.
+- Use the [Duskmoon Web consumer skills](https://github.com/duskmoon-dev/duskmoon-web/tree/v2.0.0-rc.3/skills)
+  for package integrations, including `duskmoon-phoenix` for LiveView.
 - Build assets through DuskMoonBundler. Use `mix assets.build` for development
   output and `mix assets.deploy` for digested production output.
 - Keep the profile name `:gsmlg` consistent across `config/config.exs`, the

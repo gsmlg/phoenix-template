@@ -40,7 +40,7 @@ defmodule Gsmlg.MixProject do
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:phoenix_live_view, "~> 1.2"},
       {:lazy_html, ">= 0.1.0"},
-      {:phoenix_duskmoon, "~> 10.1"},
+      {:duskmoon_phoenix, "2.0.0-rc.3"},
       {:duskmoon_bundler, "~> 10.1", runtime: Mix.env() in [:dev, :test]},
       {:duskmoon_bundler_runtime, "~> 10.1"},
       {:duskmoon_hologram, "~> 10.1"},

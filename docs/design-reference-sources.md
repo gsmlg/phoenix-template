@@ -1,29 +1,24 @@
 # Design Reference V1 Sources
 
-Reviewed on 2026-11-14. Source repositories were read locally and their public
-revisions checked against GitHub. Examples use synthetic data. No consumer
-repository was modified, and no private application source is reproduced.
+The design references were reviewed on 2026-11-14. The Web package sources
+were updated to the consolidated release on 2026-11-21. Examples use synthetic
+data from the referenced patterns.
 
 ## Five Layers
 
 | Repository | Role | Reviewed source |
 | --- | --- | --- |
 | `duskmoon-dev/design` | YAML design tokens, generated CSS/JSON/TypeScript/Dart outputs, and the shared design vocabulary | [README](https://github.com/duskmoon-dev/design/blob/175c49dd86d173bf3bba5d8ca6a647ad42421a0f/README.md) |
-| `duskmoon-dev/duskmoonui` | Framework-neutral Core CSS, semantic tokens, themes, and Tailwind integration | [README](https://github.com/duskmoon-dev/duskmoonui/blob/12ca4f5c3b8e6f994da144d087c624e489e7ca7b/README.md) |
-| `duskmoon-dev/duskmoon-elements` | Native custom elements with browser-owned behavior and Shadow DOM | [Aggregate package](https://github.com/duskmoon-dev/duskmoon-elements/blob/4b8e3b97dcc6cc2be2e3967b3baf75b5ba7cb845/packages/elements/README.md) |
-| `duskmoon-dev/duskmoon-react` | React components exposed through `@duskmoon-dev/components` | [README](https://github.com/duskmoon-dev/duskmoon-react/blob/95704b4e8d39e1a30a5df1d7c16213dca938228b/README.md) |
-| `duskmoon-dev/phoenix-duskmoon-ui` | Phoenix HEEx components, LiveView integration, and hooks | [README](https://github.com/duskmoon-dev/phoenix-duskmoon-ui/blob/e89e7d01df936b4e5fac841a92a754eb65ba8803/README.md) |
+| `duskmoon-dev/duskmoon-web` | Framework-neutral Core CSS, semantic tokens, themes, and Tailwind integration | [Core](https://github.com/duskmoon-dev/duskmoon-web/blob/v2.0.0-rc.3/packages/css/core/README.md) |
+| `duskmoon-dev/duskmoon-web` | Native custom elements with browser-owned behavior and Shadow DOM | [Elements](https://github.com/duskmoon-dev/duskmoon-web/blob/v2.0.0-rc.3/packages/elements/elements/README.md) |
+| `duskmoon-dev/duskmoon-web` | React components exposed through `@duskmoon-dev/components` | [React Components](https://github.com/duskmoon-dev/duskmoon-web/blob/v2.0.0-rc.3/packages/react/components/README.md) |
+| `duskmoon-dev/duskmoon-web` | Phoenix HEEx components, LiveView integration, and hooks | [Duskmoon Phoenix](https://github.com/duskmoon-dev/duskmoon-web/blob/v2.0.0-rc.3/phoenix/apps/duskmoon_phoenix/README.md) |
 
-These source revisions document the research, not the installed package versions.
-The runnable template uses Core 1.21.2, Elements 1.10.2, Components 0.5.5,
-React/React DOM 19.3.1, and PhoenixDuskmoon 10.1.4. The exact resolution belongs
-in `package-lock.json` and `mix.lock`.
-
-Components 0.5.5 supports the existing Core cohort. Components 0.6.4 requires
-Core >=1.21.5 and additional peers; this first edition does not upgrade the
-entire component stack just to display the React adapter. All direct component
-imports use aggregate packages. Transitive individual packages remain normal
-lockfile entries.
+The runnable template pins Core, Elements, React Components, and both
+`duskmoon_phoenix` distributions to Duskmoon Web 2.0.0-rc.3. The Design repository
+and Bundler toolchain follow their own release schedules. `package-lock.json`
+and `mix.lock` record the resolved versions. Component imports use aggregate
+packages, and their individual dependencies are installed transitively.
 
 ## Application-Derived Patterns
 
@@ -116,16 +111,7 @@ working-directory `DESIGN.md`. The download remains byte-for-byte identical to
 the canonical file used to compile that release. It is a working export until
 an authorized commit or release establishes a published source revision.
 
-## Open Dependency Acceptance Gate
-
-`@duskmoon-dev/elements` 1.10.2 cannot preserve input focus: `el-dm-input` redraws
-its shadow input on focus, returning focus to the body before typing. The 1.10.3
-published source retains that implementation. This blocks the interactive input
-preview and is tracked in [Elements issue #90](https://github.com/duskmoon-dev/duskmoon-elements/issues/90).
-The template includes an explicit preview notice and a failing browser regression.
-No local dependency patch, replacement control, or skipped assertion bypasses it.
-Resume acceptance after a fixed aggregate release is installed and keyboard/fill,
-blur, and unrelated LiveView updates preserve the value and focus as appropriate.
+## Asset Pipeline Integration
 
 The stylesheet entry split is a temporary, supported-pipeline integration for
 [Bundler issue #27](https://github.com/duskmoon-dev/duskmoon-bundler/issues/27):

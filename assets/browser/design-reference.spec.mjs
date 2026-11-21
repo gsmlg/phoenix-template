@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
 
 const connected = page => expect.poll(() => page.evaluate(() => window.liveSocket?.isConnected())).toBe(true);
-const action = (page, id) => page.locator(`#${id}`).getByRole("button");
+const action = (page, id) => page.locator(`button#${id}`);
 
 function captureErrors(page, expectedRedirects = []) {
   const errors = [];
@@ -34,9 +34,17 @@ test("reference navigation, ecosystem roles and canonical specification export",
   await page.goto("/");
   await connected(page);
   await expect(page.locator("h1")).toContainText("One design language.");
-  for (const repository of ["design", "duskmoonui", "duskmoon-react", "duskmoon-elements", "phoenix-duskmoon-ui"]) {
-    await expect(page.locator(`a[href="https://github.com/duskmoon-dev/${repository}"]`).first()).toBeVisible();
+  const sources = page.locator("#repositories");
+  await expect(sources.getByRole("link", { name: /View Duskmoon Web/ })).toHaveAttribute("href", "https://github.com/duskmoon-dev/duskmoon-web");
+  for (const [id, path] of [
+    ["core", "packages/css/core"],
+    ["elements", "packages/elements/elements"],
+    ["react", "packages/react/components"],
+    ["phoenix", "phoenix/apps/duskmoon_phoenix"],
+  ]) {
+    await expect(sources.locator(`#repository-${id} h3 a`)).toHaveAttribute("href", `https://github.com/duskmoon-dev/duskmoon-web/blob/v2.0.0-rc.3/${path}/README.md`);
   }
+  await expect(sources.locator("#repository-design h3 a")).toHaveAttribute("href", /^https:\/\/github\.com\/duskmoon-dev\/design\//);
   const navigation = page.getByRole("navigation", { name: "Main navigation", exact: true });
   for (const [name, path] of [["Guidelines", "/guidelines"], ["Components", "/components"], ["Use Cases", "/use-cases"], ["Overview", "/"]]) {
     await navigation.getByRole("link", { name: new RegExp(name) }).click();
@@ -438,15 +446,16 @@ for (const theme of ["sunshine", "moonlight"]) {
   });
 }
 
-// TODO(upstream): duskmoon-dev/duskmoon-elements#90; keep this
-// regression failing until a published aggregate release preserves input focus.
 test("Elements input accepts keyboard entry and survives unrelated LiveView updates", async ({ page }) => {
   await page.goto("/components");
   await connected(page);
   const input = page.locator("#elements-name").locator("input");
-  await input.fill("Design team");
+  await input.fill("");
+  await input.pressSequentially("Design team");
+  await expect(input).toBeFocused();
   await expect(input).toHaveValue("Design team");
   await page.locator("#core-add").click();
+  await expect(page.locator("#core-count")).toHaveText("1 items");
   await expect(input).toHaveValue("Design team");
 });
 

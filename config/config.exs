@@ -28,7 +28,7 @@ config :duskmoon_bundler, :gsmlg,
     sources: [
       %{base: "lib/gsmlg_web", pattern: "**/*.{ex,heex}"},
       %{base: "lib/gsmlg", pattern: "**/*.{ex,heex}"},
-      %{base: "deps/phoenix_duskmoon/lib/phoenix_duskmoon", pattern: "**/*.{ex,heex}"},
+      %{base: "deps/duskmoon_phoenix/lib/duskmoon_phoenix", pattern: "**/*.{ex,heex}"},
       %{base: "assets", pattern: "**/*.{js,css}"}
     ]
   ],

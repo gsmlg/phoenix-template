@@ -86,10 +86,10 @@ defmodule GsmlgWeb.SettingsLiveTest do
     assert has_element?(view, "#settings-repository[value='invalid']")
 
     view
-    |> form("#workspace-github-form", integration: %{repository: "  duskmoon-dev/duskmoonui  "})
+    |> form("#workspace-github-form", integration: %{repository: "  duskmoon-dev/duskmoon-web  "})
     |> render_submit()
 
-    assert has_element?(view, "#settings-repository[value='duskmoon-dev/duskmoonui']")
+    assert has_element?(view, "#settings-repository[value='duskmoon-dev/duskmoon-web']")
     assert has_element?(view, "#settings-feedback", "No GitHub connection was made")
 
     view
@@ -97,7 +97,7 @@ defmodule GsmlgWeb.SettingsLiveTest do
     |> render_change()
 
     view |> element("#cancel-workspace-integration") |> render_click()
-    assert has_element?(view, "#settings-repository[value='duskmoon-dev/duskmoonui']")
+    assert has_element?(view, "#settings-repository[value='duskmoon-dev/duskmoon-web']")
     refute has_element?(view, "#settings-feedback")
   end
 

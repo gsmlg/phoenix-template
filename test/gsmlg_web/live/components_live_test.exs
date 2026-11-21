@@ -14,7 +14,11 @@ defmodule GsmlgWeb.ComponentsLiveTest do
     assert has_element?(view, "#react-component-preview[src='/previews/react'][title]")
     assert html =~ "@duskmoon-dev/elements"
     assert html =~ "@duskmoon-dev/components"
-    assert has_element?(view, "a[href='https://github.com/duskmoon-dev/phoenix-duskmoon-ui']")
+
+    assert has_element?(
+             view,
+             "#phoenix a[href='https://github.com/duskmoon-dev/duskmoon-web/tree/v2.0.0-rc.3/phoenix/apps/duskmoon_phoenix']"
+           )
   end
 
   test "Core counter and Phoenix review have independent, resettable state", %{conn: conn} do
