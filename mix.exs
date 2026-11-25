@@ -40,7 +40,7 @@ defmodule Gsmlg.MixProject do
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:phoenix_live_view, "~> 1.2"},
       {:lazy_html, ">= 0.1.0"},
-      {:duskmoon_phoenix, "~> 2.0.0-rc.3"},
+      {:duskmoon_phoenix, "~> 2.0"},
       {:duskmoon_bundler, "~> 10.1", runtime: Mix.env() in [:dev, :test]},
       {:duskmoon_bundler_runtime, "~> 10.1"},
       {:duskmoon_hologram, "~> 10.1"},
@@ -48,10 +48,10 @@ defmodule Gsmlg.MixProject do
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},
       {:gettext, "~> 1.0"},
-      {:formata, "~> 0.3.1"},
+      {:formata, "~> 0.4"},
       {:dns_cluster, "~> 0.3"},
-      {:gaoxy_http, "~> 0.16.4"},
-      {:websock_adapter, "~> 0.16.4", hex: :gaoxy_websock_adapter, override: true},
+      {:gaoxy_http, "~> 0.16"},
+      {:websock_adapter, "~> 0.16", hex: :gaoxy_websock_adapter, override: true},
       {:igniter, "~> 0.8", only: [:dev, :test], runtime: false}
     ]
   end
