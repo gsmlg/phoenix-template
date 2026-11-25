@@ -36,12 +36,15 @@ config :phoenix_live_view,
   debug_attributes: true,
   enable_expensive_runtime_checks: true
 
-config :gsmlg, GsmlgWeb.Endpoint,
-  live_reload: [
-    web_console_logger: true,
-    patterns: [
-      ~r"priv/static/(?!uploads/).*\.(js|css|png|jpeg|jpg|gif|svg)$",
-      ~r"priv/gettext/.*\.po$",
-      ~r"lib/gsmlg_web/(controllers|live|components|router)/.*\.(ex|heex)$"
+# CI serves prebuilt assets and exercises the application's own sockets.
+unless System.get_env("CI") == "true" do
+  config :gsmlg, GsmlgWeb.Endpoint,
+    live_reload: [
+      web_console_logger: true,
+      patterns: [
+        ~r"priv/static/(?!uploads/).*\.(js|css|png|jpeg|jpg|gif|svg)$",
+        ~r"priv/gettext/.*\.po$",
+        ~r"lib/gsmlg_web/(controllers|live|components|router)/.*\.(ex|heex)$"
+      ]
     ]
-  ]
+end
