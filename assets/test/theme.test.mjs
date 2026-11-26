@@ -45,7 +45,7 @@ test("only supported themes are accepted", () => {
 });
 test("initial document theme script tolerates blocked storage and rejects unknown themes", () => {
   const layout = readFileSync(new URL("../../lib/gsmlg_web/components/layouts/root.html.heex", import.meta.url), "utf8");
-  const script = layout.match(/<script>\s*([\s\S]*?)<\/script>/)?.[1];
+  const script = layout.match(/<script id="theme-bootstrap">\s*([\s\S]*?)<\/script>/)?.[1];
   assert.ok(script, "the pre-paint theme script exists");
 
   for (const options of [{ blocked: true }, { stored: "invalid" }, { stored: "moonlight" }, { stored: "default", dark: true }]) {
