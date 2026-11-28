@@ -72,6 +72,7 @@ does not load LiveSocket or manually mount LiveView hooks.
 | `/previews/react` | Actual React adapter and local state | Separate HTML document and JS entry |
 | `/use-cases` | Practical workflow compositions and source attribution | LiveView |
 | `/use-cases/workspace-settings`, `/use-cases/records`, `/use-cases/confirmation`, `/use-cases/progress` | One selected workflow per route | LiveView |
+| `/use-cases/async-data` | Initial page shell, background data loading, and retry | LiveView async assigns |
 | `/use-cases/react-chat` | React chat composer and transcript with scripted replies | LiveView and mounted React |
 | `/use-cases/react-form` | React form generated from JSON Schema with validated submissions | LiveView and mounted React |
 | `/use-cases/settings` | Object settings identity and General profile draft | LiveView |

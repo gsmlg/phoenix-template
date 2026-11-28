@@ -10,6 +10,7 @@ use `DuskmoonPhoenix.Component` through `GsmlgWeb`.
 | Searchable records | `dm_card`, `dm_badge`, `dm_input` | Filter a fixed collection by query and status, inspect details, and clear filters to recover |
 | Confirmation | `dm_btn` | Inline, explicitly labelled confirmation; cancel, confirm and restore; no real deletion |
 | Progress | `dm_progress`, `dm_badge`, `dm_btn` | Simulated 25% steps, bounded at 100%, reset |
+| Async data loading | `assign_async/3`, `async_result/1`, `dm_loading_spinner` | Page shell first, followed by simulated data or a retryable failure |
 | Theme | `dm_theme_switcher` in the shared layout | Sunshine/moonlight with the existing persistence behavior |
 
 ## Copy a pattern
@@ -36,6 +37,21 @@ check authorization in event handlers, and persist only after successful validat
 The confirmation example guards the transition on the server; hiding a button is
 not authorization. Keep cancellation and repeated actions covered by tests.
 
+## Load LiveView data without blocking navigation
+
+Open **Async data loading** under **Use Cases**. The view calls `assign_async/3`
+from `mount/3`, so the page renders before the simulated response arrives. Use
+**Simulate failure** and **Retry** to exercise the other states. See
+[`AsyncDataLive`](../lib/gsmlg_web/live/async_data_live.ex) for the implementation.
+The demo uses `reset: true` to replay the loading state on each request.
+
+Use this pattern for database and external API data that can arrive after
+navigation. Capture only the query inputs and authorization scope in the task.
+For data that changes through `push_patch/2`, schedule the task in
+`handle_params/3` when those inputs change. Follow the
+[shared guidance](../DESIGN.md#liveview-data-loading) and the
+[Phoenix LiveView async documentation](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#module-async-operations).
+
 ## Runtime wiring and API evidence
 
 `assets/js/app.js` registers all elements through `@duskmoon-dev/elements` and
@@ -46,9 +62,8 @@ See the [Duskmoon Phoenix component source](https://github.com/duskmoon-dev/dusk
 for attributes and slots. The [consumer skill](https://github.com/duskmoon-dev/duskmoon-web/tree/v2.0.0-rc.3/skills/duskmoon-phoenix)
 covers setup and optional integrations.
 
-This is a starter set, not a claim of exhaustive component coverage. Dialog,
-upload, data-grid, rich editor and async backend examples require their own
-application contracts and integration tests.
+Dialog, upload, data-grid, and rich editor examples require their own application
+contracts and integration tests.
 
 ## Verification
 

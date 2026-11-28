@@ -27,6 +27,7 @@ the left menu opens topics and related examples.
 | `/guidelines` | Shared specification, semantic token examples, and exact Markdown download |
 | `/components` | Actual Core, Elements, Phoenix, and isolated React previews |
 | `/use-cases` | Validated settings, filtered records, confirmation, and progress |
+| `/use-cases/async-data` | Non-blocking LiveView loading, failure, and retry |
 | `/use-cases/session` | Per-session state shared across tabs and refreshes |
 | `/hologram-demo` | Browser-local state and offline actions |
 

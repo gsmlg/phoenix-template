@@ -186,6 +186,7 @@ defmodule GsmlgWeb.UseCasesLive do
             <.link navigate={~p"/use-cases/records"} class="link">Record browser</.link>
             <.link navigate={~p"/use-cases/confirmation"} class="link">Confirmation</.link>
             <.link navigate={~p"/use-cases/progress"} class="link">Job progress</.link>
+            <.link navigate={~p"/use-cases/async-data"} class="link">Async data loading</.link>
             <.link navigate={~p"/use-cases/react-chat"} class="link">React Chat</.link>
             <.link navigate={~p"/use-cases/react-form"} class="link">React Form</.link>
           </nav>

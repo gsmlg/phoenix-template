@@ -270,6 +270,7 @@ map these two navigation levels to their own product hierarchy.
 | Forms | Visible labels, necessary format guidance, and field errors; placeholders do not replace labels |
 | Validation failure | Preserve input, identify the error and recovery action, and clear stale success messages when input changes |
 | Submission | Show loading state, prevent duplicate submission, and preserve button width and context |
+| Page data loading | Show the page shell and keep navigation available while data loads. Place loading, failure, and retry feedback in the affected region |
 | Disabled controls | Use actual disabled behavior or appropriate semantic state, with an understandable reason |
 | Empty data | Distinguish "No data yet" from "No matching results" and provide a next step such as creating an item or clearing filters |
 | Request failure | Preserve recoverable input and data, offer retry, and do not disguise failure as an empty list |
@@ -443,6 +444,19 @@ non-submit buttons set `type="button"`.
 - When changing Web Component integrations, verify focus, events, and form
   behavior in the actual Shadow DOM. Server-rendered tags alone do not prove
   that a component works.
+
+### LiveView Data Loading
+
+- Default to `assign_async/3` for database queries and external API reads that
+  can finish after the page renders. Use `mount/3` for data fixed for the view and
+  `handle_params/3` for data that depends on live-patched filters or pagination.
+  Reload only when the inputs to the query change.
+- Resolve access checks, redirects, and data deliberately required in the
+  initial HTML before rendering. Pass only the IDs, filters, and authorization
+  scope the task needs. Keep database queries and API calls in the owning context.
+- Render loading, failure with retry, and success with `async_result/1`. Keep
+  navigation available and apply timeouts to external requests. The
+  [async data loading example](/use-cases/async-data) demonstrates these states.
 
 ## 9. Acceptance and Change Rules
 

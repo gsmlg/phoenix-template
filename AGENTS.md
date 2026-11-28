@@ -23,6 +23,9 @@ code comments, identifiers, examples, and developer-facing messages.
   state, concurrency, or fault isolation.
 - Keep Ecto access behind `Gsmlg.Repo` and use the existing test helpers for
   database-backed tests.
+- Default to `assign_async/3` for page data from the database or external APIs
+  that can load after navigation. Follow the loading and retry guidance in
+  [DESIGN.md](DESIGN.md#liveview-data-loading).
 
 ## DuskMoon UI and assets
 

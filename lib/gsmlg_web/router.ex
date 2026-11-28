@@ -32,6 +32,7 @@ defmodule GsmlgWeb.Router do
     live("/use-cases/records", UseCasesLive, :records)
     live("/use-cases/confirmation", UseCasesLive, :confirmation)
     live("/use-cases/progress", UseCasesLive, :progress)
+    live("/use-cases/async-data", AsyncDataLive, :index)
     live("/use-cases/react-chat", ReactUseCaseLive, :chat)
     live("/use-cases/react-form", ReactUseCaseLive, :form)
     live("/use-cases/settings", SettingsLive, :general)
